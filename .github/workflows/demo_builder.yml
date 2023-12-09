@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Profile Demo 🏗️ Builder
+name: 🏗️ Demo Builder
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       library:
@@ -24,31 +23,47 @@ on:
       repo:
         type: string
         default: ${{ github.repository }}
+      version:
+        type: string
+        default: ""
       conan_version:
         type: string
         default: "2.0.14"
-      profile:
+      compiler_profile_url:
         type: string
         required: true
-      processor_profile:
+      compiler_profile:
         type: string
-        default: ""
+        required: true
+      compiler_profile_branch:
+        type: string
+        default: "main"
+      platform_profile_url:
+        type: string
+        required: true
       platform_profile:
         type: string
-        default: ""
+        required: true
+      platform_profile_branch:
+        type: string
+        default: "main"
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    if: github.event.action != 'deleted'
     steps:
       - uses: actions/checkout@v3
+        if: ${{ inputs.version != '' }}
         with:
           submodules: true
           repository: ${{ inputs.repo }}
+          ref: ${{ inputs.version }}
 
-      - name: 📥 Install CMake 3.27.7
-        run: pip3 install cmake==3.27.7
+      - uses: actions/checkout@v3
+        if: ${{ inputs.version == '' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pip3 install conan==${{ inputs.conan_version }}
@@ -63,29 +78,17 @@ jobs:
       - name: 👁️‍🗨️ Show conan profile
         run: conan profile show
 
-      - name: 📡 Sign into JFrog Artifactory
-        if: ${{ github.ref == 'refs/heads/main' }}
-        env:
-          API_KEY: ${{ secrets.JFROG_LIBHAL_TRUNK_API_KEY }}
-          JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_USER }}
-        run: conan remote login -p $API_KEY libhal $JFROG_USER
-
       - name: Install libhal settings_user.yml
-        run: conan config install -sf profiles/baremetal https://github.com/libhal/conan-config.git
+        run: conan config install -sf profiles/baremetal/v2 https://github.com/libhal/conan-config.git
 
-      - name: Install host OS profiles
-        run: conan config install -sf profiles/x86_64/linux/ -tf profiles https://github.com/libhal/conan-config.git
-
-      - name: Install processor profiles
-        if: inputs.processor_profile != ''
-        run: conan config install -tf profiles -sf conan/profiles/ ${{ inputs.processor_profile }}
+      - name: Install compiler profiles
+        run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.compiler_profile_branch }} --single-branch" ${{ inputs.compiler_profile_url }}
 
       - name: Install platform profiles
-        if: inputs.platform_profile != ''
-        run: conan config install -tf profiles -sf conan/profiles/ ${{ inputs.platform_profile }}
+        run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.platform_profile_branch }} --single-branch" ${{ inputs.platform_profile_url }}
 
       - name: 📦 Build package using ${{ inputs.profile }}
-        run: conan create . -pr ${{ inputs.profile }} -s build_type=MinSizeRel
+        run: conan create . -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} --version=latest
 
       - name: 🏗️ Build demos for ${{ inputs.profile }}
-        run: conan build demos -pr ${{ inputs.profile }} -s build_type=MinSizeRel
+        run: conan build demos -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}

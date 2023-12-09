@@ -15,7 +15,6 @@
 name: 🧼 lint
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       library:
@@ -27,12 +26,23 @@ on:
       repo:
         required: true
         type: string
+      version:
+        type: string
+        default: ""
 
 jobs:
   lint:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+        if: ${{ inputs.version != '' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.version }}
+
+      - uses: actions/checkout@v3
+        if: ${{ inputs.version == '' }}
         with:
           submodules: true
           repository: ${{ inputs.repo }}

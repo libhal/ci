@@ -12,67 +12,117 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Device 🏗️ Package 🚀 Deploy
-
-# Builds packages for every device and architecture libhal supports
+name: Package 📦 + 🚀 Deploy
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       library:
-        default: ${{ github.event.repository.name }}
         type: string
+        default: ${{ github.event.repository.name }}
       repo:
         type: string
         default: ${{ github.repository }}
       conan_version:
         type: string
         default: "2.0.14"
+      version:
+        type: string
+        default: ""
+      compiler:
+        type: string
+        required: true
+      compiler_version:
+        type: string
+        required: true
+      compiler_package:
+        type: string
+        required: true
+      arch:
+        type: string
+        required: true
+      os:
+        type: string
+        required: true
 
 jobs:
-  cortex-m0:
-    uses: ./.github/workflows/deploy_unit.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      profile: cortex-m0
-      profile_source: https://github.com/libhal/libhal-armcortex.git
-    secrets: inherit
-  cortex-m1:
-    uses: ./.github/workflows/deploy_unit.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      profile: cortex-m1
-      profile_source: https://github.com/libhal/libhal-armcortex.git
-    secrets: inherit
-  cortex-m3:
-    uses: ./.github/workflows/deploy_unit.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      profile: cortex-m3
-      profile_source: https://github.com/libhal/libhal-armcortex.git
-    secrets: inherit
-  cortex-m4:
-    uses: ./.github/workflows/deploy_unit.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      profile: cortex-m4
-      profile_source: https://github.com/libhal/libhal-armcortex.git
-    secrets: inherit
-  cortex-m4f:
-    uses: ./.github/workflows/deploy_unit.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      profile: cortex-m4f
-      profile_source: https://github.com/libhal/libhal-armcortex.git
-    secrets: inherit
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        if: ${{ inputs.version != '' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.version }}
+
+      - uses: actions/checkout@v3
+        if: ${{ inputs.version == '' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+
+      - name: 📥 Install Conan ${{ inputs.conan_version }}
+        run: pip3 install conan==${{ inputs.conan_version }}
+
+      - name: 📡 Add `libhal` repo to conan remotes
+        run: conan remote add libhal
+          https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
+
+      - name: 📡 Create and setup default profile
+        run: conan profile detect --force
+
+      - name: 👁️‍🗨️ Show conan profile
+        run: conan profile show
+
+      - name: 📡 Install linux default profiles
+        run: conan config install -sf profiles/x86_64/linux/ -tf profiles https://github.com/libhal/conan-config.git
+
+      - name: 📡 Sign into JFrog Artifactory
+        env:
+          PASSWORD: ${{ secrets.JFROG_LIBHAL_TRUNK_ID_TOKEN }}
+          JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_ID_TOKEN_USER }}
+        run: conan remote login -p $PASSWORD libhal $JFROG_USER
+
+      - name: 📡 Install libhal settings_user.yml
+        run: conan config install -sf profiles/baremetal/v2 https://github.com/libhal/conan-config.git
+
+      - name: Set Version Environment Variable
+        run: |
+          if [ -z "${{ inputs.version }}" ]; then
+            echo "VERSION=latest" >> $GITHUB_ENV
+          else
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+          fi
+
+      - name: Create `deploy.profile`
+        run: |
+          echo "[settings]" > deploy.profile
+          echo "arch=${{ inputs.arch }}" >> deploy.profile
+          echo "compiler=${{ inputs.compiler }}" >> deploy.profile
+          echo "compiler.version=${{ inputs.compiler_version }}" >> deploy.profile
+          echo "compiler.libcxx=libstdc++11" >> deploy.profile
+          echo "compiler.cppstd=20" >> deploy.profile
+          echo "os=${{ inputs.os }}" >> deploy.profile
+
+      - name: Add compiler to `deploy.profile` [tool_requires] section
+        if: ${{ inputs.compiler_package != '' }}
+        run: |
+          echo "[tool_requires]" >> deploy.profile
+          echo "${{ inputs.compiler_package }}/${{ inputs.compiler_version }}" >> deploy.profile
+
+      - name: 📦 Create `Debug` package for ${{ inputs.profile }}
+        run: conan create . -s build_type=Debug -pr deploy.profile --version=${{ env.VERSION }}
+
+      - name: 📦 Create `RelWithDebInfo` package for ${{ inputs.profile }}
+        run: conan create . -s build_type=RelWithDebInfo -pr deploy.profile --version=${{ env.VERSION }}
+
+      - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
+        run: conan create . -s build_type=MinSizeRel -pr deploy.profile --version=${{ env.VERSION }}
+
+      - name: 📦 Create `Release` package for ${{ inputs.profile }}
+        run: conan create . -s build_type=Release -pr deploy.profile --version=${{ env.VERSION }}
+
+      - name: 🆙 Upload package version ${{ inputs.version }} to `libhal` repo
+        if: ${{ inputs.version != '' }}
+        run: conan upload "${{ inputs.library }}/${{ inputs.version }}" --confirm -r=libhal

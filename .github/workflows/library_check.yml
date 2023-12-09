@@ -15,24 +15,26 @@
 name: ✅ checks
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       library:
+        type: string
         default: ${{ github.event.repository.name }}
+      version:
         type: string
+        default: ""
       coverage:
+        type: boolean
         default: true
-        type: boolean
       fail_on_coverage:
-        default: false
         type: boolean
+        default: false
       coverage_threshold:
+        type: string
         default: "40 80"
-        type: string
       source_dir:
-        default: "include/"
         type: string
+        default: "include/"
       repo:
         type: string
         default: ${{ github.repository }}
@@ -51,6 +53,7 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       library: ${{ inputs.library }}
+      version: ${{ inputs.version }}
       repo: ${{ inputs.repo }}
       coverage: ${{ inputs.coverage }}
       fail_on_coverage: ${{ inputs.fail_on_coverage }}
@@ -62,6 +65,7 @@ jobs:
     uses: ./.github/workflows/lint.yml
     with:
       library: ${{ inputs.library }}
+      version: ${{ inputs.version }}
       source_dir: ${{ inputs.source_dir }}
       repo: ${{ inputs.repo }}
     secrets: inherit
@@ -70,6 +74,7 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       library: ${{ inputs.library }}
+      version: ${{ inputs.version }}
       source_dir: ${{ inputs.source_dir }}
       repo: ${{ inputs.repo }}
     secrets: inherit
@@ -79,5 +84,6 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with:
       library: ${{ inputs.library }}
+      # version: ${{ inputs.version }}
       repo: ${{ inputs.repo }}
     secrets: inherit

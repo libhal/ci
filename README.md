@@ -262,7 +262,7 @@ Inputs:
   package. Default is an empty string.
 
 This workflow runs on an Ubuntu 22.04 runner. It checks out the code for the
-library, installs CMake and Conan, adds the `libhal` Conan repository to the
+library, installs Conan, adds the `libhal` Conan repository to the
 Conan remotes, creates and sets up the default Conan profile, signs into JFrog
 Artifactory if the workflow is running on the `main` branch, installs the libhal
 settings_user.yml file, installs host OS profiles, installs processor profiles
@@ -297,7 +297,7 @@ Inputs:
   demo. Default is an empty string.
 
 This workflow runs on an Ubuntu 22.04 runner. It checks out the code for the
-library, installs CMake and Conan, adds the `libhal` Conan repository to the
+library, installs Conan, adds the `libhal` Conan repository to the
 Conan remotes, creates and sets up the default Conan profile, signs into JFrog
 Artifactory if the workflow is running on the `main` branch, installs the libhal
 settings_user.yml file, installs host OS profiles, installs processor profiles
