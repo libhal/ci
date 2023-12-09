@@ -15,63 +15,32 @@
 name: 🧪 tests
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       library:
-        required: true
         type: string
+        required: true
+      version:
+        type: string
+        default: ""
       coverage:
-        required: true
         type: boolean
+        required: true
       fail_on_coverage:
-        required: true
         type: boolean
+        required: true
       coverage_threshold:
-        required: true
         type: string
+        required: true
       repo:
-        required: true
         type: string
+        required: true
       conan_version:
-        required: true
         type: string
+        required: true
 
 jobs:
-  pull:
-    runs-on: ubuntu-22.04
-    if: github.event.action == 'deleted'
-    steps:
-      - name: 📥 Install CMake 3.27.7
-        run: pip3 install cmake==3.27.7
-
-      - name: 📥 Install Conan ${{ inputs.conan_version }}
-        run: pip3 install conan==${{ inputs.conan_version }}
-
-      - name: 📡 Add `libhal` repo to conan remotes
-        run: conan remote add libhal
-          https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
-
-      - name: 📡 Create and setup default profile
-        run: conan profile detect --force
-
-      - name: 👁️‍🗨️ Show conan profile
-        run: conan profile show
-
-      - name: 📡 Install linux default profiles
-        run: conan config install -sf profiles/x86_64/linux/ -tf profiles https://github.com/libhal/conan-config.git
-
-      - name: 📡 Sign into JFrog Artifactory
-        env:
-          API_KEY: ${{ secrets.JFROG_LIBHAL_TRUNK_API_KEY }}
-          JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_USER }}
-        run: conan remote login -p $API_KEY libhal $JFROG_USER
-
-      - name: 🚮 Pulling package version ${{ github.event.release.tag_name }} from `libhal` repo
-        run: conan remove "${{ inputs.library }}/${{ github.event.release.tag_name }}" --confirm -r=libhal
-
   run_tests:
-    if: github.event.action != 'deleted'
     strategy:
       fail-fast: false
       matrix:
@@ -101,6 +70,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+        if: ${{ inputs.version != '' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.version }}
+
+      - uses: actions/checkout@v3
+        if: ${{ inputs.version == '' }}
         with:
           submodules: true
           repository: ${{ inputs.repo }}
@@ -108,9 +85,6 @@ jobs:
       - name: 📥 Install OS Specific Tools
         if: ${{ matrix.installations != '' }}
         run: ${{ matrix.installations }}
-
-      - name: 📥 Install CMake 3.27.7
-        run: pip3 install cmake==3.27.7
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pip3 install conan==${{ inputs.conan_version }}
@@ -130,17 +104,17 @@ jobs:
 
       - name: 🔬 Create & Run Unit Tests
         if: ${{ runner.os != 'Windows' }}
-        run: VERBOSE=1 conan create . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug
+        run: VERBOSE=1 conan create . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug --version="latest"
 
       - name: 🔬 Create & Run Unit Tests
         if: ${{ runner.os == 'Windows' }}
-        run: $env:VERBOSE = 1 ; conan create . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug
+        run: $env:VERBOSE = 1 ; conan create . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug --version="latest"
 
       - name: 🔬 Build & Run Unit Tests (for coverage)
         if: ${{ matrix.enable_coverage }}
-        run: conan build . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug
+        run: conan build . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug --version="latest"
 
-      - name: 📥 Install GCovr
+      - name: 📥 Install gcovr
         if: ${{ matrix.enable_coverage }}
         run: pip3 install gcovr
 
@@ -177,14 +151,3 @@ jobs:
           name: coverage
           retention-days: 1
           path: build/coverage/
-
-      - name: 📡 Sign into JFrog Artifactory
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          API_KEY: ${{ secrets.JFROG_LIBHAL_TRUNK_API_KEY }}
-          JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_USER }}
-        run: conan remote login -p $API_KEY libhal $JFROG_USER
-
-      - name: 🆙 Upload package to `libhal` repo
-        if: startsWith(github.ref, 'refs/tags/')
-        run: conan upload "${{ inputs.library }}/${{ github.ref_name }}" --confirm -r=libhal
