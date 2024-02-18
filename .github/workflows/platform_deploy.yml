@@ -52,9 +52,13 @@ jobs:
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pip3 install conan==${{ inputs.conan_version }}
 
-      - name: 📡 Add `libhal` repo to conan remotes
-        run: conan remote add libhal
-          https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
+      # - name: 📡 Add `libhal` repo to conan remotes
+      #   run: conan remote add libhal
+      #     https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
+
+      - name: 📡 Add `astraeus` repo to conan remotes
+        run: conan remote add astraeus
+          https://libhal.jfrog.io/artifactory/api/astraeuslibrary-conan/
 
       - name: 📡 Create and setup default profile
         run: conan profile detect --force
@@ -67,7 +71,8 @@ jobs:
         env:
           API_KEY: ${{ secrets.JFROG_LIBHAL_TRUNK_API_KEY }}
           JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_USER }}
-        run: conan remote login -p $API_KEY libhal $JFROG_USER
+        # run: conan remote login -p $API_KEY libhal $JFROG_USER
+        run: conan remote login -p $API_KEY astraeus $JFROG_USER
 
       - name: Install libhal settings_user.yml
         run: conan config install -sf profiles/baremetal https://github.com/libhal/conan-config.git
@@ -104,6 +109,6 @@ jobs:
         if: steps.check_demos_dir.outputs.files_exists == 'true'
         run: conan build demos -pr ${{ inputs.profile }} -s build_type=MinSizeRel
 
-      - name: 🆙 Upload package to `libhal` repo
+      - name: 🆙 Upload package to `astraeus` repo
         if: startsWith(github.ref, 'refs/tags/') && inputs.upload
-        run: conan upload "${{ inputs.library }}/${{ github.ref_name }}" --confirm -r=libhal
+        run: conan upload "${{ inputs.library }}/${{ github.ref_name }}" --confirm -r=astraeus
