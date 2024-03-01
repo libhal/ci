@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2024 Khalil Estell
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: ✅ CI
+name: ✅ Self Check
 
 on:
   pull_request:
@@ -28,47 +28,41 @@ jobs:
     with:
       library: libhal
       repo: libhal/libhal
-      version: exceptions
-    secrets: inherit
+          secrets: inherit
 
   libhal-armcortex:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-armcortex
       repo: libhal/libhal-armcortex
-      version: exceptions
-    secrets: inherit
+          secrets: inherit
 
   libhal-util:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-util
       repo: libhal/libhal-util
-      version: exceptions
-    secrets: inherit
+          secrets: inherit
 
   libhal-lpc40:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-lpc40
       repo: libhal/libhal-lpc40
-      version: exceptions
-    secrets: inherit
+          secrets: inherit
 
   # libhal-soft:
   #   uses: ./.github/workflows/library_check.yml
   #   with:
   #     library: libhal-soft
   #     repo: libhal/libhal-soft
-  #     version: exceptions
   #   secrets: inherit
 
   libhal-lpc4072:
     uses: ./.github/workflows/deploy.yml
     with:
       library: libhal-lpc40
-      version: exceptions
-      repo: libhal/libhal-lpc40
+            repo: libhal/libhal-lpc40
       arch: cortex-m4f
       os: baremetal
       compiler: gcc
@@ -80,8 +74,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       library: libhal-lpc40
-      version: exceptions
-      repo: libhal/libhal-lpc40
+            repo: libhal/libhal-lpc40
       arch: cortex-m4f
       os: baremetal
       compiler: gcc
@@ -93,8 +86,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       library: libhal-armcortex
-      version: exceptions
-      repo: libhal/libhal-armcortex
+            repo: libhal/libhal-armcortex
       arch: cortex-m0
       os: baremetal
       compiler: gcc
@@ -107,7 +99,17 @@ jobs:
     with:
       library: libhal-soft
       repo: libhal/libhal-soft
-      version: exceptions
+          secrets: inherit
+
+  libhal-lpc4078-demos:
+    uses: ./.github/workflows/demo_builder.yml
+    with:
+      library: libhal-lpc40
+      repo: libhal/libhal-lpc40
+      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
+      compiler_profile: v1/arm-gcc-12.3
+      platform_profile_url: https://github.com/libhal/libhal-lpc40.git
+      platform_profile: v2/lpc4078
     secrets: inherit
 
   libhal-rmd-demos-lpc4078:
@@ -115,13 +117,10 @@ jobs:
     with:
       library: libhal-rmd
       repo: libhal/libhal-rmd
-      version: exceptions
       compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
       compiler_profile: v1/arm-gcc-12.3
-      compiler_profile_branch: main
       platform_profile_url: https://github.com/libhal/libhal-lpc40.git
       platform_profile: v2/lpc4078
-      platform_profile_branch: exception
     secrets: inherit
 
   libhal-rmd-demos-lpc4074:
@@ -129,11 +128,8 @@ jobs:
     with:
       library: libhal-rmd
       repo: libhal/libhal-rmd
-      version: exceptions
       compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
       compiler_profile: v1/arm-gcc-12.3
-      compiler_profile_branch: main
       platform_profile_url: https://github.com/libhal/libhal-lpc40.git
       platform_profile: v2/lpc4074
-      platform_profile_branch: exception
     secrets: inherit

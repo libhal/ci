@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2024 Khalil Estell
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ jobs:
   lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version != '' }}
         with:
           submodules: true
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.version }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version == '' }}
         with:
           submodules: true
@@ -55,21 +55,21 @@ jobs:
         run: wget https://raw.githubusercontent.com/libhal/libhal/main/.clang-format -O .clang-format
 
       - name: 🧹 Format Check `src/` directory
-        uses: DoozyX/clang-format-lint-action@v0.15
+        uses: DoozyX/clang-format-lint-action@v0.17
         if: always()
         with:
           source: ${{ inputs.source_dir }}
           exclude: "./third_party/*"
           extensions: "hpp,cpp"
-          clangFormatVersion: 15
+          clangFormatVersion: 17
           style: file
 
       - name: 🧹 Format Check `test/` code
-        uses: DoozyX/clang-format-lint-action@v0.15
+        uses: DoozyX/clang-format-lint-action@v0.17
         if: always()
         with:
           source: ./tests/
           exclude: "./third_party/*"
           extensions: "hpp,cpp"
-          clangFormatVersion: 15
+          clangFormatVersion: 17
           style: file
