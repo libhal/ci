@@ -34,14 +34,14 @@ jobs:
   docs:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version != '' }}
         with:
           submodules: true
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.version }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version == '' }}
         with:
           submodules: true
