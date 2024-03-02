@@ -84,6 +84,5 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with:
       library: ${{ inputs.library }}
-      # version: ${{ inputs.version }}
       repo: ${{ inputs.repo }}
     secrets: inherit
