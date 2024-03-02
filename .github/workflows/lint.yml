@@ -55,21 +55,17 @@ jobs:
         run: wget https://raw.githubusercontent.com/libhal/libhal/main/.clang-format -O .clang-format
 
       - name: 🧹 Format Check `src/` directory
-        uses: DoozyX/clang-format-lint-action@v0.17
+        uses: jidicula/clang-format-action@v4.11.0
         if: always()
         with:
-          source: ${{ inputs.source_dir }}
-          exclude: "./third_party/*"
-          extensions: "hpp,cpp"
-          clangFormatVersion: 17
-          style: file
+          clang-format-version: "17"
+          check-path: ${{ inputs.source_dir }}
+          exclude-regex: "./third_party/*"
 
       - name: 🧹 Format Check `test/` code
-        uses: DoozyX/clang-format-lint-action@v0.17
+        uses: jidicula/clang-format-action@v4.11.0
         if: always()
         with:
-          source: ./tests/
-          exclude: "./third_party/*"
-          extensions: "hpp,cpp"
-          clangFormatVersion: 17
-          style: file
+          clang-format-version: "17"
+          check-path: ./tests/
+          exclude-regex: "./third_party/*"
