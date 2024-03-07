@@ -78,12 +78,6 @@ jobs:
       - name: 📡 Install linux default profiles
         run: conan config install -sf profiles/x86_64/linux/ -tf profiles https://github.com/libhal/conan-config.git
 
-      - name: 📡 Sign into JFrog Artifactory
-        env:
-          PASSWORD: ${{ secrets.JFROG_LIBHAL_TRUNK_ID_TOKEN }}
-          JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_ID_TOKEN_USER }}
-        run: conan remote login -p $PASSWORD libhal $JFROG_USER
-
       - name: 📡 Install libhal settings_user.yml
         run: conan config install -sf profiles/baremetal/v2 https://github.com/libhal/conan-config.git
 
@@ -122,6 +116,13 @@ jobs:
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
         run: conan create . -s build_type=Release -pr deploy.profile --version=${{ env.VERSION }}
+
+      - name: 📡 Sign into JFrog Artifactory
+        if: ${{ inputs.version != '' }}
+        env:
+          PASSWORD: ${{ secrets.JFROG_LIBHAL_TRUNK_ID_TOKEN }}
+          JFROG_USER: ${{ secrets.JFROG_LIBHAL_TRUNK_ID_TOKEN_USER }}
+        run: conan remote login -p $PASSWORD libhal $JFROG_USER
 
       - name: 🆙 Upload package version ${{ inputs.version }} to `libhal` repo
         if: ${{ inputs.version != '' }}
