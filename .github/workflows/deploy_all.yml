@@ -33,19 +33,19 @@ on:
         default: "2.0.14"
 
 jobs:
-  linux_x86_64_gcc:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      version: ${{ inputs.version }}
-      conan_version: ${{ inputs.conan_version }}
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: ""
-      arch: x86_64
-      os: Linux
-    secrets: inherit
+  # linux_x86_64_gcc:
+  #   uses: ./.github/workflows/deploy.yml
+  #   with:
+  #     library: ${{ inputs.library }}
+  #     repo: ${{ inputs.repo }}
+  #     version: ${{ inputs.version }}
+  #     conan_version: ${{ inputs.conan_version }}
+  #     compiler: gcc
+  #     compiler_version: 12.3
+  #     compiler_package: ""
+  #     arch: x86_64
+  #     os: Linux
+  #   secrets: inherit
   cortex-m0:
     uses: ./.github/workflows/deploy.yml
     with:
