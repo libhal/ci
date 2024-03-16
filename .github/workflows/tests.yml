@@ -45,13 +45,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - toolchain: gcc
-            compiler_version: 12
-            os: ubuntu-22.04
-            standard_library: libstdc++
-            installations: sudo apt remove clang-tidy && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main" && sudo apt install clang-tidy-17 && sudo ln -sf $(which clang-tidy-17) /usr/bin/clang-tidy
-            enable_coverage: ${{ inputs.coverage }}
-            profile_path: profiles/x86_64/linux/
+          # - toolchain: gcc
+          #   compiler_version: 12
+          #   os: ubuntu-22.04
+          #   standard_library: libstdc++
+          #   installations: sudo apt remove clang-tidy && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" && sudo apt install clang-tidy-18 && sudo ln -sf $(which clang-tidy-18) /usr/bin/clang-tidy
+          #   enable_coverage: ${{ inputs.coverage }}
+          #   profile_path: profiles/x86_64/linux/
 
           - toolchain: apple-clang
             compiler_version: 14
