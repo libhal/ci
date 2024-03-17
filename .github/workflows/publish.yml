@@ -44,9 +44,6 @@ jobs:
         with:
           path: docs
 
-      - name: Generate Latest Version Badge
-        run: wget "https://img.shields.io/badge/Latest%20Version-$(conan inspect . | grep version | cut -c 10- | sed s/-/~/ )-green" -O docs/latest_version.svg
-
       - name: Setup Pages
         uses: actions/configure-pages@v4.0.0
 
