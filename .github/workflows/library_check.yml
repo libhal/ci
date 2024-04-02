@@ -40,7 +40,7 @@ on:
         default: ${{ github.repository }}
       conan_version:
         type: string
-        default: "2.0.14"
+        default: "2.2.2"
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
