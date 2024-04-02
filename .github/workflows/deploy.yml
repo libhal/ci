@@ -25,7 +25,7 @@ on:
         default: ${{ github.repository }}
       conan_version:
         type: string
-        default: "2.0.14"
+        default: "2.2.2"
       version:
         type: string
         default: ""

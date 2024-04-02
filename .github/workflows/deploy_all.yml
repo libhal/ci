@@ -30,7 +30,7 @@ on:
         default: ""
       conan_version:
         type: string
-        default: "2.0.14"
+        default: "2.2.2"
 
 jobs:
   # linux_x86_64_gcc:

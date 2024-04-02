@@ -28,7 +28,7 @@ on:
         default: ""
       conan_version:
         type: string
-        default: "2.0.14"
+        default: "2.2.2"
       compiler_profile_url:
         type: string
         required: true

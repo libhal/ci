@@ -45,26 +45,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - toolchain: gcc
-          #   compiler_version: 12
-          #   os: ubuntu-22.04
-          #   standard_library: libstdc++
-          #   installations: sudo apt remove clang-tidy && wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - && sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" && sudo apt install clang-tidy-18 && sudo ln -sf $(which clang-tidy-18) /usr/bin/clang-tidy
-          #   enable_coverage: ${{ inputs.coverage }}
-          #   profile_path: profiles/x86_64/linux/
+          - os: ubuntu-22.04
+            installations: sudo apt remove clang-tidy && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 17 && sudo apt install libc++-17-dev libc++abi-17-dev
+            enable_coverage: ${{ inputs.coverage }}
+            profile_path: profiles/x86_64/linux/
 
-          - toolchain: apple-clang
-            compiler_version: 14
-            os: macos-12
-            standard_library: libc++
-            installations: brew install llvm && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
+          - os: macos-12
+            installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
             profile_path: profiles/x86_64/mac/
 
-          # - toolchain: gcc
-          #   compiler_version: 12
-          #   os: windows-2022
-          #   standard_library: libstdc++
-          #   installations: choco install python mingw make && choco install llvm --version=16.0.6
+          # # Skip already installed "git" and "mingw"
+          # - os: windows-2022
+          #   installations: choco install python --version=3.12.2 && choco install mingw && choco install llvm --version=17.0.6
           #   profile_path: profiles/x86_64/windows/
 
     runs-on: ${{ matrix.os }}
@@ -96,54 +88,65 @@ jobs:
       - name: 📡 Create and setup default profile
         run: conan profile detect --force
 
-      - name: 👁️‍🗨️ Show conan profile
+      - name: 👁️‍🗨️ Show conan profile (original)
         run: conan profile show
 
       - name: 📡 Install default profiles
         run: conan config install -sf ${{ matrix.profile_path }} -tf profiles https://github.com/libhal/conan-config.git
 
-      - name: 🔬 Create & Run Unit Tests
+      - name: 👁️‍🗨️ Show conan profile (new)
         if: ${{ runner.os != 'Windows' }}
-        run: VERBOSE=1 conan create . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug --version="latest"
+        run: cat ~/.conan2/profiles/default
 
-      - name: 🔬 Create & Run Unit Tests
+      - name: 👁️‍🗨️ Show conan profile (new)
+        run: conan profile show
+
+      - name: 🔬 Create & Run Unit Tests (Windows-MinSizeRel)
         if: ${{ runner.os == 'Windows' }}
-        run: $env:VERBOSE = 1 ; conan create . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug --version="latest"
+        run: $env:VERBOSE = 1 ; conan create . --build=missing -s build_type=MinSizeRel --version="latest"
 
-      - name: 🔬 Build & Run Unit Tests (for coverage)
-        if: ${{ matrix.enable_coverage }}
-        run: conan build . --build=missing -s compiler.cppstd=20 -s compiler.version=${{ matrix.compiler_version }} -s compiler.libcxx=${{ matrix.standard_library }} -s compiler=${{ matrix.toolchain }} -s build_type=Debug --version="latest"
+      - name: 🔬 Create & Run Unit Tests (Everything_Else-MinSizeRel)
+        if: ${{ runner.os != 'Windows' }}
+        run: VERBOSE=1 conan create . --build=missing -s build_type=MinSizeRel --version="latest"
 
-      - name: 📥 Install gcovr
-        if: ${{ matrix.enable_coverage }}
-        run: pip3 install gcovr
+      # ========================================================================
+      # DISABLE COVERAGE! Not sure if its worth it to support it as a part of CI
+      # ========================================================================
 
-      - name: 🔎 Generate Code Coverage
-        if: ${{ matrix.enable_coverage }}
-        working-directory: build
-        run: |
-          mkdir coverage/ && python3 -m gcovr --root ../../ --exclude ".*/third_party/.*" --cobertura coverage/coverage.xml --html coverage/index.html --html-details --sort-percentage
+      # - name: 🔬 Build & Run Unit Tests (for coverage Debug)
+      #   if: ${{ matrix.enable_coverage }}
+      #   run: VERBOSE=1 conan build . --build=missing -s build_type=Debug --version="latest"
 
-      - name: Coverage Summary
-        if: ${{ matrix.enable_coverage }}
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: build/coverage/coverage.xml
-          badge: true
-          fail_below_min: ${{ inputs.fail_on_coverage }}
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
-          indicators: true
-          output: both
-          thresholds: ${{ inputs.coverage_threshold }}
+      # - name: 📥 Install gcovr
+      #   if: ${{ matrix.enable_coverage }}
+      #   run: pip3 install gcovr
 
-      - name: Extract & Save Coverage SVG
-        if: ${{ matrix.enable_coverage }}
-        run: wget
-          $(cat code-coverage-results.md |
-          grep -Eo 'https://img.shields.io/badge/[^)]*')
-          -O build/coverage/coverage.svg
+      # - name: 🔎 Generate Code Coverage
+      #   if: ${{ matrix.enable_coverage }}
+      #   working-directory: build
+      #   run: |
+      #     mkdir coverage/ && python3 -m gcovr --root ../../ --exclude ".*/third_party/.*" --cobertura coverage/coverage.xml --html coverage/index.html --html-details --sort-percentage
+
+      # - name: Coverage Summary
+      #   if: ${{ matrix.enable_coverage }}
+      #   uses: irongut/CodeCoverageSummary@v1.3.0
+      #   with:
+      #     filename: build/coverage/coverage.xml
+      #     badge: true
+      #     fail_below_min: ${{ inputs.fail_on_coverage }}
+      #     format: markdown
+      #     hide_branch_rate: false
+      #     hide_complexity: true
+      #     indicators: true
+      #     output: both
+      #     thresholds: ${{ inputs.coverage_threshold }}
+
+      # - name: Extract & Save Coverage SVG
+      #   if: ${{ matrix.enable_coverage }}
+      #   run: wget
+      #     $(cat code-coverage-results.md |
+      #     grep -Eo 'https://img.shields.io/badge/[^)]*')
+      #     -O build/coverage/coverage.svg
 
       - uses: actions/upload-artifact@v4.3.1
         if: github.ref == 'refs/heads/main' && github.repository == inputs.repo
