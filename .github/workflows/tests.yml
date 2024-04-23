@@ -50,9 +50,9 @@ jobs:
             enable_coverage: ${{ inputs.coverage }}
             profile_path: profiles/x86_64/linux/
 
-          - os: macos-12
+          - os: macos-12-large
             installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
-            profile_path: profiles/x86_64/mac/
+            profile_path: profiles/armv8/mac/
 
           # # Skip already installed "git" and "mingw"
           # - os: windows-2022
