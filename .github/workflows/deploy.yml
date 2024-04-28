@@ -96,7 +96,7 @@ jobs:
           echo "compiler=${{ inputs.compiler }}" >> deploy.profile
           echo "compiler.version=${{ inputs.compiler_version }}" >> deploy.profile
           echo "compiler.libcxx=libstdc++11" >> deploy.profile
-          echo "compiler.cppstd=20" >> deploy.profile
+          echo "compiler.cppstd=23" >> deploy.profile
           echo "os=${{ inputs.os }}" >> deploy.profile
 
       - name: Add compiler to `deploy.profile` [tool_requires] section
