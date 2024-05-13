@@ -10,45 +10,46 @@ libraries as well.
 
 The repository contains the following workflows:
 
-1. `demo_builder.yml`: This workflow builds a demo profile for a specified
+1. `demo_builder.yml`: Builds a demo profile for a specified
    library. It installs necessary dependencies, sets up Conan profiles, and
    builds the package and demos for the specified profile.
 
-2. `deploy.yml`: This workflow builds packages for every device and architecture
-   that libhal supports. It uses the `deploy_unit.yml` workflow for each device
-   and architecture.
+2. `deploy_all.yml`: Builds packages for every device and
+   architecture that libhal supports. It uses the `deploy.yml` workflow for each device and architecture.
 
-3. `deploy_unit.yml`: This workflow is used by the `deploy.yml` workflow to
-   build packages for a specific device and architecture.
+3. `deploy.yml`: Used by the `deploy_all.yml` workflow to build packages for a
+   specific device and architecture.
 
-4. `docs.yml`: This workflow is used to generate documentation for the library.
-   It uses Doxygen to generate the documentation and then uploads the generated
-   documentation as an artifact.
+4. `deploy_linux.yml`: A workflow used by `deploy_all.yml` to deploy
+   specifically to linux using the `conan-config/linux/` profile.
 
-5. `library.yml`: This workflow is used to build and test a library. It installs
+5. `docs.yml`: Used to generate documentation for the library. It uses Doxygen
+   to generate the documentation and then uploads the generated documentation
+   as an artifact.
+
+6. `library_check.yml`: Used to build and test a library. It installs
    necessary dependencies, sets up Conan profiles, builds the library, runs
    tests, and optionally generates code coverage reports.
 
-6. `lint.yml`: This workflow is used to lint the code in the repository. It uses
+7. `lint.yml`: Used to lint the code in the repository. It uses
    clang-format to format the code and clang-tidy to check the code for issues.
 
-7. `platform_deploy.yml`: This workflow is used to build packages for a specific
+8. `platform_deploy.yml`: Used to build packages for a specific
    platform. It installs necessary dependencies, sets up Conan profiles, and
    builds the package for the specified platform.
 
-8. `publish.yml`: This workflow is used to publish the library. It generates a
-   badge for the latest version of the library, sets up GitHub Pages, and
-   deploys the documentation to GitHub Pages.
+9. `publish.yml`: Used to publish the library. It generates a badge for the
+    latest version of the library, sets up GitHub Pages, and deploys the
+    documentation to GitHub Pages.
 
-9. `self_check.yml`: This workflow is used to run a series of checks on the
-   library. It uses the `library.yml` and `platform_deploy.yml` workflows to
-   build and test the library on various platforms.
+10. `self_check.yml`: Used to run a series of checks on various libraries to
+    determine if all of the workflows still work as intended.
 
-10. `take.yml`: This workflow is used to assign issues to contributors. When a
+11. `take.yml`: Used to assign issues to contributors. When a
     contributor comments on an issue with the word "take", the workflow assigns
     the issue to the contributor.
 
-11. `tests.yml`: This workflow is used to run tests on the library. It installs
+12. `tests.yml`: Used to run tests on the library. It installs
     necessary dependencies, sets up Conan profiles, builds the library, runs
     tests, and optionally generates code coverage reports.
 
@@ -58,64 +59,53 @@ To use these workflows in your own repository, you can reference them in your
 own GitHub Actions workflows. For example, the `libhal/libhal-stm32f1`
 repository uses these workflows in its `ci.yml` workflow.
 
-Here is an example of how to use the `library.yml` and `platform_deploy.yml`
-workflows from the `libhal/ci` repository:
+Here is an example of how to use the `library_check.yml`, `demo_builder.yml`, and `deploy.yml` workflows from the `libhal/ci` repository:
 
 ```yaml
-name: ✅ Checks
+
+name: ✅ CI
 
 on:
   workflow_dispatch:
   pull_request:
   push:
-    tags:
-      - "*"
     branches:
       - main
+  # Every week re-run these checks to see if changes to the ecosystem have
+  # broken this package.
   schedule:
     - cron: "0 12 * * 0"
 
 jobs:
-  # Unit test, lint, and doc generation
-  ci:
-    uses: libhal/ci/.github/workflows/library.yml@4.0.0
+  # Build and run unit tests on the library package
+  library_checks:
+    uses: libhal/ci/.github/workflows/library_check.yml@5.x.y
     secrets: inherit
 
-  # Test profile stm32f103c8 & upload prebuilt binaries to repository
-  cortex-m3:
-    uses: libhal/ci/.github/workflows/platform_deploy.yml@4.0.0
+  # Check the deploy flow. Without the "version" parameter specified, deploy
+  # runs a dry run of the deploy without pushing anything to the server.
+  deploy_cortex-m4f_check:
+    uses: libhal/ci/.github/workflows/deploy.yml@5.x.y
     with:
-      profile: stm32f103c8
-      upload: true
-      processor_profile: https://github.com/libhal/libhal-armcortex.git
+      arch: cortex-m4f
+      os: baremetal
+      compiler: gcc
+      compiler_version: 12.3
+      compiler_package: arm-gnu-toolchain
     secrets: inherit
 
-  # Build platform based on profile& build p
-  stm32f103c4:
-    uses: libhal/ci/.github/workflows/platform_deploy.yml@4.0.0
+  # Build the demo for a specific chip. Because most of the stm32f1
+  # architectures are "mostly" the same besides their flash and ram size, if
+  # demos build one for chip then it should work for others.
+  demo_check:
+    uses: libhal/ci/.github/workflows/demo_builder.yml@5.x.y
     with:
-      profile: stm32f103c4
-      processor_profile: https://github.com/libhal/libhal-armcortex.git
+      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
+      compiler_profile: v1/arm-gcc-12.3
+      platform_profile_url: https://github.com/libhal/libhal-stm32f1.git
+      platform_profile: v2/stm32f103c8
     secrets: inherit
-
-  # Required for libhal libraries to generate releases when a new tag version
-  # is pushed. Highly recommended for open source libhal libraries.
-  release:
-    needs: [ci, cortex-m3, stm32f103c4, stm32f103zd]
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          generate_release_notes: true
 ```
-
-In this example, the `libhal` job uses the `library.yml` workflow to build and
-test the `libhal` library, and the `libhal-stm32f1` job uses the
-`platform_deploy.yml` workflow to build packages for the `libhal-stm32f1`
-library for the `stm32f1` platform.
 
 ## Device Libraries
 
@@ -144,32 +134,43 @@ on:
 
 jobs:
   ci:
-    uses: libhal/ci/.github/workflows/library.yml@3.0.3
+    uses: libhal/ci/.github/workflows/library_check.yml@5.x.y
+    secrets: inherit
+
+  deploy_cortex-m4f_check:
+    uses: libhal/ci/.github/workflows/deploy.yml@5.x.y
     with:
-      library: libhal-esp8266
-      coverage: true
+      arch: cortex-m4f
+      os: baremetal
+      compiler: gcc
+      compiler_version: 12.3
+      compiler_package: arm-gnu-toolchain
     secrets: inherit
-  deploy:
-    uses: libhal/ci/.github/workflows/deploy.yml@3.0.3
-    secrets: inherit
-  build_lpc4078:
-    uses: libhal/ci/.github/workflows/demo_builder.yml@3.0.3
+
+  demo_check:
+    uses: libhal/ci/.github/workflows/demo_builder.yml@5.x.y
     with:
-      profile: lpc4078
-      processor_profile: https://github.com/libhal/libhal-armcortex.git
-      platform_profile: https://github.com/libhal/libhal-lpc40.git
+      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
+      compiler_profile: v1/arm-gcc-12.3
+      platform_profile_url: https://github.com/libhal/libhal-lpc40.git
+      platform_profile: v2/lpc4078
     secrets: inherit
+
 ```
 
 In this workflow:
 
-- The `ci` job uses the `library.yml` workflow from `libhal/ci` to build and
-  test the `libhal-esp8266` library. Code coverage is enabled for this job.
+- The `ci` job uses the `library_check.yml` workflow from `libhal/ci` to build
+  and test the `libhal-esp8266` library. Code coverage is enabled for this job.
 
 - The `deploy` job uses the `deploy.yml` workflow from `libhal/ci` to build
-  packages for the `libhal-esp8266` library.
+  packages for the `libhal-esp8266` library for the `cortex-m4f` processor.
+  This simply shows that the package can be built for this specific
+  architecture. Because the library doesn't have anything that wouldn't work
+  between different cortex-m CPU, only deploying for one architecture should be
+  enough.
 
-- The `build_lpc4078` job uses the `demo_builder.yml` workflow from `libhal/ci`
+- The `demo_check` job uses the `demo_builder.yml` workflow from `libhal/ci`
   to build a demo for the `libhal-esp8266` library for the `lpc4078` platform.
   The `processor_profile` and `platform_profile` inputs specify the profiles to
   use for the processor and platform, respectively.
@@ -179,18 +180,23 @@ follow the same pattern as the `libhal-esp8266` library. Just replace
 `libhal-esp8266` with the name of your library, and adjust the
 `processor_profile` and `platform_profile` inputs as needed for your device.
 
+> [!IMPORTANT]
+> This section is missing the new way we run deployments. Specifically using the
+> deploy_all.yml along with a tag number.
+
 ## Detailed Workflow Descriptions
 
-### library.yml
+### library_check.yml
 
-The `library.yml` workflow is used to build and test a library. It installs
-necessary dependencies, sets up Conan profiles, builds the library, runs tests,
-and optionally generates code coverage reports.
+The `library_check.yml` workflow is used to build and test a library. It
+installs necessary dependencies, sets up Conan profiles, builds the library, runs tests, and optionally generates code coverage reports.
 
 Inputs:
 
 - `library`: The name of the library to build and test. Default is the name of
   the repository where the workflow is running.
+- `version`: library version number which should correspond to a tag number in
+  the repo. Do not supply this field if you want to perform a dry-run and not deploy to the server.
 - `coverage`: A boolean value indicating whether to generate code coverage
   reports. Default is true.
 - `fail_on_coverage`: A boolean value indicating whether the workflow should
@@ -202,14 +208,38 @@ Inputs:
   threshold. Default is "40 80".
 - `source_dir`: The directory where the source code for the library is located.
   Default is "include/".
-- `skip_deploy`: A boolean value indicating whether to skip the deployment step.
-  Default is false.
-- `app_folder`: The directory where the application code for the library is
-  located. Default is "demos".
 - `repo`: The GitHub repository where the library is located. Default is the
   repository where the workflow is running.
 - `conan_version`: The version of Conan to use for building the library. Default
-  is "2.0.14".
+  is "2.2.2".
+
+This workflow is designed to be used in any GitHub Actions workflow by
+referencing it with the `uses` keyword and providing the necessary inputs. If an
+input is not provided, the workflow will use the default value.
+
+### deploy_all.yml
+
+This profile is the correct profile to be used for device libraries, or
+libraries that are agnostic to the CPU it is running on.
+
+The `deploy.yml` workflow is used to build packages for every device and
+architecture that libhal supports. It uses the `deploy.yml` and
+`deploy_linux.yml` workflow for each device and architecture.
+
+Inputs:
+
+- `library`: The name of the library to build packages for. Default is the name
+  of the repository where the workflow is running.
+- `version`: library version number which should correspond to a tag number in
+  the repo. Do not supply this field if you want to perform a dry-run and not deploy to the server.
+- `repo`: The GitHub repository where the library is located. Default is the
+  repository where the workflow is running.
+- `conan_version`: The version of Conan to use for building the library. Default
+  is "2.2.2".
+
+This workflow creates a job for each supported device and architecture. Each job
+uses the `deploy.yml` workflow to build a package for the specified device
+and architecture.
 
 This workflow is designed to be used in any GitHub Actions workflow by
 referencing it with the `uses` keyword and providing the necessary inputs. If an
@@ -217,64 +247,8 @@ input is not provided, the workflow will use the default value.
 
 ### deploy.yml
 
-The `deploy.yml` workflow is used to build packages for every device and
-architecture that libhal supports. It uses the `deploy_unit.yml` workflow for
-each device and architecture.
-
-Inputs:
-
-- `library`: The name of the library to build packages for. Default is the name
-  of the repository where the workflow is running.
-- `repo`: The GitHub repository where the library is located. Default is the
-  repository where the workflow is running.
-- `conan_version`: The version of Conan to use for building the library. Default
-  is "2.0.14".
-
-This workflow creates a job for each supported device and architecture. Each job
-uses the `deploy_unit.yml` workflow to build a package for the specified device
-and architecture. The `profile` and `profile_source` inputs for the
-`deploy_unit.yml` workflow are set to the name of the device and the URL of the
-profile for the device, respectively.
-
-This workflow is designed to be used in any GitHub Actions workflow by
-referencing it with the `uses` keyword and providing the necessary inputs. If an
-input is not provided, the workflow will use the default value.
-
-### platform_deploy.yml
-
-The `platform_deploy.yml` workflow is used to build packages for a specific
-platform. It installs necessary dependencies, sets up Conan profiles, and builds
-the package for the specified platform.
-
-Inputs:
-
-- `library`: The name of the library to build packages for. Default is the name
-  of the repository where the workflow is running.
-- `repo`: The GitHub repository where the library is located. Default is the
-  repository where the workflow is running.
-- `conan_version`: The version of Conan to use for building the library. Default
-  is "2.0.14".
-- `profile`: The profile to use for building the package. This input is
-  required.
-- `upload`: A boolean value indicating whether to upload the built package to
-  the `libhal` Conan repository. Default is false.
-- `processor_profile`: The URL of the processor profile to use for building the
-  package. Default is an empty string.
-
-This workflow runs on an Ubuntu 22.04 runner. It checks out the code for the
-library, installs Conan, adds the `libhal` Conan repository to the
-Conan remotes, creates and sets up the default Conan profile, signs into JFrog
-Artifactory if the workflow is running on the `main` branch, installs the libhal
-settings_user.yml file, installs host OS profiles, installs processor profiles
-if a `processor_profile` input is provided, installs platform profiles, and
-creates packages for the `Debug`, `RelWithDebInfo`, `MinSizeRel`, and `Release`
-build types for the specified profile. It also builds demos for the specified
-profile. If the `upload` input is true and the workflow is running on a tag, it
-uploads the built package to the `libhal` Conan repository.
-
-This workflow is designed to be used in any GitHub Actions workflow by
-referencing it with the `uses` keyword and providing the necessary inputs. If an
-input is not provided, the workflow will use the default value.
+> [!NOTE]
+> Docs not written yet.
 
 ### demo_builder.yml
 
@@ -289,7 +263,7 @@ Inputs:
 - `repo`: The GitHub repository where the library is located. Default is the
   repository where the workflow is running.
 - `conan_version`: The version of Conan to use for building the library. Default
-  is "2.0.14".
+  is "2.2.2".
 - `profile`: The profile to use for building the demo. This input is required.
 - `processor_profile`: The URL of the processor profile to use for building the
   demo. Default is an empty string.
@@ -317,9 +291,3 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for details.
 ## License
 
 Apache 2.0; see [`LICENSE`](LICENSE) for details.
-
-## Disclaimer
-
-This project is not an official Google project. It is not supported by Google
-and Google specifically disclaims all warranties as to its quality,
-merchantability, or fitness for a particular purpose.
