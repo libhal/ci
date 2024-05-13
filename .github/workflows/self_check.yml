@@ -51,12 +51,12 @@ jobs:
       repo: libhal/libhal-lpc40
     secrets: inherit
 
-  # libhal-soft:
-  #   uses: ./.github/workflows/library_check.yml
-  #   with:
-  #     library: libhal-soft
-  #     repo: libhal/libhal-soft
-  #   secrets: inherit
+  libhal-soft:
+    uses: ./.github/workflows/library_check.yml
+    with:
+      library: libhal-soft
+      repo: libhal/libhal-soft
+    secrets: inherit
 
   libhal-lpc4072:
     uses: ./.github/workflows/deploy.yml
@@ -92,6 +92,13 @@ jobs:
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain
+    secrets: inherit
+
+  libhal-deploy-linux:
+    uses: ./.github/workflows/deploy_linux.yml
+    with:
+      library: libhal
+      repo: libhal/libhal
     secrets: inherit
 
   libhal-util-package:
