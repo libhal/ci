@@ -44,20 +44,23 @@ on:
       os:
         type: string
         required: true
+      external_package:
+        type: boolean
+        default: false
 
 jobs:
   deploy:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.1
-        if: ${{ inputs.version != '' }}
+        if: ${{ inputs.version != '' && inputs.external_package == false}}
         with:
           submodules: true
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.version }}
 
       - uses: actions/checkout@v4.1.1
-        if: ${{ inputs.version == '' }}
+        if: ${{ inputs.version == '' || inputs.external_package == true}}
         with:
           submodules: true
           repository: ${{ inputs.repo }}
