@@ -66,6 +66,6 @@ jobs:
         uses: jidicula/clang-format-action@v4.11.0
         if: always()
         with:
-          clang-format-version: "17"
+          clang-format-version: "18"
           check-path: ./tests/
           exclude-regex: "./third_party/*"
