@@ -46,12 +46,12 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            installations: sudo apt remove clang-tidy && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 17 && sudo apt install libc++-17-dev libc++abi-17-dev
+            installations: sudo apt remove clang-tidy && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 18 && sudo apt install libc++-18-dev libc++abi-18-dev
             enable_coverage: ${{ inputs.coverage }}
             profile_path: profiles/x86_64/linux/
 
           - os: macos-12
-            installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
+            installations: brew install llvm@18 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
             profile_path: profiles/x86_64/mac/
 
           # # Skip already installed "git" and "mingw"
