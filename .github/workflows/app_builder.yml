@@ -17,9 +17,6 @@ name: 🏗️ Demo Builder
 on:
   workflow_call:
     inputs:
-      library: # this field is ignored but kept here for backwards compatible
-        type: string
-        default: ${{ github.event.repository.name }}
       repo:
         type: string
         default: ${{ github.repository }}
@@ -47,6 +44,9 @@ on:
       platform_profile_branch:
         type: string
         default: "main"
+      conan_build_dir:
+        type: string
+        default: "."
 
 jobs:
   build:
@@ -87,8 +87,5 @@ jobs:
       - name: Install platform profiles
         run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.platform_profile_branch }} --single-branch" ${{ inputs.platform_profile_url }}
 
-      - name: 📦 Build package using ${{ inputs.profile }}
-        run: conan create . -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} --version=latest
-
-      - name: 🏗️ Build demos for ${{ inputs.profile }}
-        run: conan build demos -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
+      - name: 🏗️ Build Application for ${{ inputs.profile }}
+        run: conan build ${{ inputs.conan_build_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
