@@ -78,11 +78,3 @@ jobs:
       source_dir: ${{ inputs.source_dir }}
       repo: ${{ inputs.repo }}
     secrets: inherit
-
-  publish_artifacts:
-    needs: [lint, tests]
-    uses: ./.github/workflows/publish.yml
-    with:
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-    secrets: inherit

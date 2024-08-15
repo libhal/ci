@@ -38,18 +38,14 @@ The repository contains the following workflows:
    platform. It installs necessary dependencies, sets up Conan profiles, and
    builds the package for the specified platform.
 
-9. `publish.yml`: Used to publish the library. It generates a badge for the
-    latest version of the library, sets up GitHub Pages, and deploys the
-    documentation to GitHub Pages.
+9. `self_check.yml`: Used to run a series of checks on various libraries to
+   determine if all of the workflows still work as intended.
 
-10. `self_check.yml`: Used to run a series of checks on various libraries to
-    determine if all of the workflows still work as intended.
-
-11. `take.yml`: Used to assign issues to contributors. When a
+10. `take.yml`: Used to assign issues to contributors. When a
     contributor comments on an issue with the word "take", the workflow assigns
     the issue to the contributor.
 
-12. `tests.yml`: Used to run tests on the library. It installs
+11. `tests.yml`: Used to run tests on the library. It installs
     necessary dependencies, sets up Conan profiles, builds the library, runs
     tests, and optionally generates code coverage reports.
 

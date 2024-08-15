@@ -147,10 +147,3 @@ jobs:
       #     $(cat code-coverage-results.md |
       #     grep -Eo 'https://img.shields.io/badge/[^)]*')
       #     -O build/coverage/coverage.svg
-
-      - uses: actions/upload-artifact@v4.3.1
-        if: github.ref == 'refs/heads/main' && github.repository == inputs.repo
-        with:
-          name: coverage
-          retention-days: 1
-          path: build/coverage/
