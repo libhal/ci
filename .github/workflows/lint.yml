@@ -59,8 +59,16 @@ jobs:
         if: always()
         with:
           clang-format-version: "18"
+          check-path: ./include
+          exclude-regex: ".*/third_party/.*"
+
+      - name: 🧹 Format Check `src/` directory
+        uses: jidicula/clang-format-action@v4.11.0
+        if: always()
+        with:
+          clang-format-version: "18"
           check-path: ${{ inputs.source_dir }}
-          exclude-regex: "./third_party/*"
+          exclude-regex: ".*/third_party/.*"
 
       - name: 🧹 Format Check `test/` code
         uses: jidicula/clang-format-action@v4.11.0
@@ -68,4 +76,4 @@ jobs:
         with:
           clang-format-version: "18"
           check-path: ./tests/
-          exclude-regex: "./third_party/*"
+          exclude-regex: ".*/third_party/.*"
