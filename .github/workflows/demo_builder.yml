@@ -87,8 +87,5 @@ jobs:
       - name: Install platform profiles
         run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.platform_profile_branch }} --single-branch" ${{ inputs.platform_profile_url }}
 
-      - name: 📦 Build package using ${{ inputs.profile }}
-        run: conan create . -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} --version=latest
-
       - name: 🏗️ Build demos for ${{ inputs.profile }}
         run: conan build demos -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
