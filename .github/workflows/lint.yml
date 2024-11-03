@@ -54,7 +54,7 @@ jobs:
       - name: 🌐 Downloading .clang-format from libhal
         run: wget https://raw.githubusercontent.com/libhal/libhal/main/.clang-format -O .clang-format
 
-      - name: 🧹 Format Check `src/` directory
+      - name: 🧹 Format Check `include/` directory
         uses: jidicula/clang-format-action@v4.11.0
         if: always()
         with:
@@ -64,7 +64,7 @@ jobs:
 
       - name: 🧹 Format Check `src/` directory
         uses: jidicula/clang-format-action@v4.11.0
-        if: always()
+        if: ${{ hashFiles(inputs.source_dir) != '' }}
         with:
           clang-format-version: "18"
           check-path: ${{ inputs.source_dir }}
@@ -75,5 +75,5 @@ jobs:
         if: always()
         with:
           clang-format-version: "18"
-          check-path: ./tests/
+          check-path: ./tests
           exclude-regex: ".*/third_party/.*"
