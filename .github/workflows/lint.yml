@@ -70,6 +70,14 @@ jobs:
           check-path: ${{ inputs.source_dir }}
           exclude-regex: ".*/third_party/.*"
 
+      - name: 🧹 Format Check `demos/` directory
+        uses: jidicula/clang-format-action@v4.11.0
+        if: ${{ hashFiles('./demos/') != '' }}
+        with:
+          clang-format-version: "18"
+          check-path: ./demos/
+          exclude-regex: ".*/third_party/.*"
+
       - name: 🧹 Format Check `test/` code
         uses: jidicula/clang-format-action@v4.11.0
         if: always()

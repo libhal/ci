@@ -44,13 +44,6 @@ jobs:
       repo: libhal/libhal-util
     secrets: inherit
 
-  libhal-soft:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-soft
-      repo: libhal/libhal-soft
-    secrets: inherit
-
   libhal-actuator:
     uses: ./.github/workflows/library_check.yml
     with:
@@ -155,13 +148,6 @@ jobs:
     with:
       library: libhal-util
       repo: libhal/libhal-util
-    secrets: inherit
-
-  libhal-soft-package:
-    uses: ./.github/workflows/deploy_all.yml
-    with:
-      library: libhal-soft
-      repo: libhal/libhal-soft
     secrets: inherit
 
   libhal-arm-mcu-lpc4078-demos:
