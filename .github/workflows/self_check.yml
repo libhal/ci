@@ -86,10 +86,19 @@ jobs:
       repo: libhal/libhal-input
     secrets: inherit
 
-  libhal-micromod:
-    uses: ./.github/workflows/library_check.yml
+  libhal-micromod-lint:
+    uses: ./.github/workflows/lint.yml
     with:
       library: libhal-micromod
+      source_dir: src
+      repo: libhal/libhal-micromod
+    secrets: inherit
+
+  libhal-micromod-docs:
+    uses: ./.github/workflows/docs.yml
+    with:
+      library: libhal-micromod
+      source_dir: src
       repo: libhal/libhal-micromod
     secrets: inherit
 
