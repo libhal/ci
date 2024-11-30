@@ -44,13 +44,6 @@ jobs:
       repo: libhal/libhal-util
     secrets: inherit
 
-  libhal-soft:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-soft
-      repo: libhal/libhal-soft
-    secrets: inherit
-
   libhal-actuator:
     uses: ./.github/workflows/library_check.yml
     with:
@@ -93,10 +86,19 @@ jobs:
       repo: libhal/libhal-input
     secrets: inherit
 
-  libhal-micromod:
-    uses: ./.github/workflows/library_check.yml
+  libhal-micromod-lint:
+    uses: ./.github/workflows/lint.yml
     with:
       library: libhal-micromod
+      source_dir: src
+      repo: libhal/libhal-micromod
+    secrets: inherit
+
+  libhal-micromod-docs:
+    uses: ./.github/workflows/docs.yml
+    with:
+      library: libhal-micromod
+      source_dir: src
       repo: libhal/libhal-micromod
     secrets: inherit
 
@@ -155,13 +157,6 @@ jobs:
     with:
       library: libhal-util
       repo: libhal/libhal-util
-    secrets: inherit
-
-  libhal-soft-package:
-    uses: ./.github/workflows/deploy_all.yml
-    with:
-      library: libhal-soft
-      repo: libhal/libhal-soft
     secrets: inherit
 
   libhal-arm-mcu-lpc4078-demos:
