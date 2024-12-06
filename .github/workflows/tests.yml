@@ -46,12 +46,25 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            installations: sudo apt remove clang-tidy && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 17 && sudo apt install libc++-17-dev libc++abi-17-dev
+            installations: sudo apt remove clang-tidy && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 17 && sudo apt install libc++-17-dev libc++abi-17-dev && sudo apt-get install pipx && pipx ensurepath
             enable_coverage: ${{ inputs.coverage }}
             profile_path: profiles/x86_64/linux/
 
-          - os: macos-12
-            installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
+          - os: ubuntu-24.04
+            installations: sudo apt remove clang-tidy && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && sudo ./llvm.sh 17 && sudo apt install libc++-17-dev libc++abi-17-dev && sudo apt-get install pipx && pipx ensurepath
+            enable_coverage: ${{ inputs.coverage }}
+            profile_path: profiles/x86_64/linux/
+
+          - os: macos-13
+            installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/ && brew install pipx
+            profile_path: profiles/x86_64/mac/
+
+          - os: macos-14
+            installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/ && brew install pipx
+            profile_path: profiles/x86_64/mac/
+
+          - os: macos-15
+            installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/ && brew install pipx
             profile_path: profiles/x86_64/mac/
 
           # # Skip already installed "git" and "mingw"
@@ -79,7 +92,7 @@ jobs:
         run: ${{ matrix.installations }}
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
-        run: pip3 install conan==${{ inputs.conan_version }}
+        run: pipx install conan==${{ inputs.conan_version }}
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
