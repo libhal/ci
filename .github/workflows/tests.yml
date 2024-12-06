@@ -50,7 +50,7 @@ jobs:
             enable_coverage: ${{ inputs.coverage }}
             profile_path: profiles/x86_64/linux/
 
-          - os: macos-12
+          - os: macos-13
             installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/
             profile_path: profiles/x86_64/mac/
 
@@ -79,7 +79,7 @@ jobs:
         run: ${{ matrix.installations }}
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
-        run: pip3 install conan==${{ inputs.conan_version }}
+        run: pip3 install --user conan==${{ inputs.conan_version }}
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
