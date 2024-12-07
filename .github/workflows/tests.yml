@@ -57,15 +57,15 @@ jobs:
 
           - os: macos-13
             installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/ && brew install pipx
-            profile_path: profiles/x86_64/mac/
+            profile_path: profiles/x86_64/mac-13/
 
           - os: macos-14
             installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/ && brew install pipx
-            profile_path: profiles/x86_64/mac/
+            profile_path: profiles/x86_64/mac-14/
 
           - os: macos-15
             installations: brew install llvm@17 && sudo ln -s $(brew --prefix llvm)/bin/clang-tidy /usr/local/bin/ && brew install pipx
-            profile_path: profiles/x86_64/mac/
+            profile_path: profiles/x86_64/mac-15/
 
           # # Skip already installed "git" and "mingw"
           # - os: windows-2022
