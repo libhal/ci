@@ -94,11 +94,20 @@ jobs:
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
 
-      - name: 🔍 clang-tidy version
-        run: clang-tidy --version
-
       - name: 🔍 conan version
         run: conan --version
+
+      - name: 🔍 cmake version
+        run: cmake --version
+
+      - name: 🔍 clang++ version
+        run: clang++-17 --version || clang++ --version
+
+      - name: 🔍 /usr/bin version
+        run: ls /usr/bin/clang*
+
+      - name: 🔍 clang-tidy version
+        run: clang-tidy-17 --version || clang-tidy --version
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
