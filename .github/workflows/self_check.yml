@@ -109,6 +109,18 @@ jobs:
       repo: libhal/libhal-iot
     secrets: inherit
 
+  deploy-libhal:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      library: libhal
+      repo: libhal/libhal
+      arch: x86_64
+      os: Linux
+      compiler: gcc
+      compiler_version: 12.3
+      compiler_package: ""
+    secrets: inherit
+
   libhal-arm-mcu-deploy-cortex-m4f:
     uses: ./.github/workflows/deploy.yml
     with:

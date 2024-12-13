@@ -50,7 +50,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version != '' && inputs.external_package == false}}
@@ -65,8 +65,20 @@ jobs:
           submodules: true
           repository: ${{ inputs.repo }}
 
+      - name: 📥 Install OS Specific Tools
+        run: |
+          sudo apt remove clang-tidy
+          sudo rm -f /usr/bin/clang-tidy
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt install libc++-17-dev libc++abi-17-dev
+          sudo apt-get install pipx
+          pipx ensurepath
+          sudo apt install clang-tidy-17
+
       - name: 📥 Install Conan ${{ inputs.conan_version }}
-        run: pip3 install conan==${{ inputs.conan_version }}
+        run: pipx install conan==${{ inputs.conan_version }}
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
