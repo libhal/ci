@@ -51,18 +51,14 @@ jobs:
         run: wget https://raw.githubusercontent.com/libhal/ci/main/doxygen.conf -O doxygen.conf
 
       - name: 📖 Run Doxygen
+        id: doxygen_check
         uses: mattnotmitt/doxygen-action@v1.12.0
         continue-on-error: true
         with:
           doxyfile-path: "doxygen.conf"
 
-      # Save the exit code of the last step (Doxygen run)
-      - name: 🧪 Capture Doxygen exit code
-        id: capture_doxygen_exit_code
-        run: echo "::set-output name=exit_code::$?"
-        shell: bash
-
-      # Conditionally read out any doxygen warnings only if the previous step failed
+      # Conditionally read out any doxygen warnings only if `doxygen_check`
+      # step failed.
       - name: ⚠️ Read out any doxygen warnings
-        if: ${{ steps.capture_doxygen_exit_code.outputs.exit_code == '1' }}
+        if: ${{ steps.doxygen_check.conclusion == 'failure' }}
         run: cat doxygen_warn.log | exit 1
