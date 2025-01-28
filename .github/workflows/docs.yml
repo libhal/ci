@@ -51,14 +51,14 @@ jobs:
         run: wget https://raw.githubusercontent.com/libhal/ci/main/doxygen.conf -O doxygen.conf
 
       - name: 📖 Run Doxygen
-        id: doxygen_check
+        id: doxygen
         uses: mattnotmitt/doxygen-action@v1.12.0
-        # continue-on-error: true
+        continue-on-error: true
         with:
           doxyfile-path: "doxygen.conf"
 
       # Conditionally read out any doxygen warnings only if `doxygen_check`
       # step failed.
       - name: ⚠️ Read out any doxygen warnings
-        if: ${{ steps.doxygen_check.conclusion == 'failure' }}
+        if: ${{ failure() && steps.doxygen.conclusion == 'failure' }}
         run: cat doxygen_warn.log | exit 1
