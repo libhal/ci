@@ -61,4 +61,4 @@ jobs:
       # step failed.
       - name: ⚠️ Read out any doxygen warnings
         if: ${{ failure() && steps.doxygen.conclusion == 'failure' }}
-        run: cat doxygen_warn.log | exit 1
+        run: cat doxygen_warn.log ; exit 1
