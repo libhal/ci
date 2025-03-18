@@ -34,13 +34,13 @@ jobs:
           name: "api_files"
           path: "docs/api/"
 
-  publish_api_docs:
-    needs: [generate_api_docs]
+  update_api_doc_branch:
+    needs: generate_api_docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: gh-pages
+          ref: api-doc
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
@@ -52,7 +52,7 @@ jobs:
       # Enter `docs/`
       - run: cd docs/
       - run: wget https://raw.githubusercontent.com/libhal/ci/refs/heads/main/scripts/add_version_to_switcher.py
-      - run: python3 add_version_to_switcher.py ${{ github.ref_name }}
+      - run: python3 add_version_to_switcher.py ${{ github.ref_name }} "https://libhal.github.io/${{ github.event.repository.name }}/api"
       - run: rm add_version_to_switcher.py
       - run: cd ..
       # Exit `docs/`
@@ -62,3 +62,20 @@ jobs:
       - run: git add docs
       - run: git commit -m "API Docs for version ${{ github.ref_name }}"
       - run: git push origin gh-pages
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: update_api_doc_branch
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

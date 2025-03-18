@@ -5,7 +5,7 @@ import re
 import sys
 
 
-def add_version_to_switcher(version):
+def add_version_to_switcher(version, url):
     """
     Add a version to the docs/switcher.json file.
 
@@ -37,7 +37,7 @@ def add_version_to_switcher(version):
         new_entry = {
             "name": version,
             "version": version,
-            "url": f"https://libhal.github.io/libhal/api/{version}/"
+            "url": f"{url}/{version}/"
         }
 
         # Add the new entry
@@ -61,8 +61,8 @@ def add_version_to_switcher(version):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        add_version_to_switcher(sys.argv[1])
+    if len(sys.argv) >= 2:
+        add_version_to_switcher(sys.argv[1], sys.argv[2])
     else:
-        print("Usage: python add_version_to_switcher.py VERSION")
+        print("Usage: python add_version_to_switcher.py VERSION URL")
         sys.exit(1)
