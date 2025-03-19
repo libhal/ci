@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: git checkout api-doc 2>/dev/null || git checkout -b api-doc
+      - run: git checkout api-docs 2>/dev/null || git checkout -b api-docs
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
