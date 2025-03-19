@@ -39,8 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: api-doc
+      - run: git checkout api-doc 2>/dev/null || git checkout -b api-doc
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
@@ -50,7 +49,9 @@ jobs:
           path: "docs/api/"
 
       # Enter `docs/`
+      - run: mkdir -p docs/
       - run: cd docs/
+      # TODO(#61): This should use the version's script
       - run: wget https://raw.githubusercontent.com/libhal/ci/refs/heads/main/scripts/add_version_to_switcher.py
       - run: python3 add_version_to_switcher.py ${{ github.ref_name }} "https://libhal.github.io/${{ github.event.repository.name }}/api"
       - run: rm add_version_to_switcher.py
@@ -61,7 +62,7 @@ jobs:
       - run: git config user.email ci-bot@example.com
       - run: git add docs
       - run: git commit -m "API Docs for version ${{ github.ref_name }}"
-      - run: git push origin gh-pages
+      - run: git push origin api-docs
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
