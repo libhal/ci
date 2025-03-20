@@ -69,11 +69,11 @@ jobs:
         with:
           path: docs/
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     needs: update_api_doc_branch
     steps:

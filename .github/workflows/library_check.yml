@@ -42,12 +42,6 @@ on:
         type: string
         default: "2.10.1"
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   tests:
     uses: ./.github/workflows/tests.yml
