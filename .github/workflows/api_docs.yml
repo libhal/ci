@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: git checkout api-docs 2>/dev/null || git checkout -b api-docs
+      - run: git checkout gh-pages 2>/dev/null || git switch --orphan gh-pages
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
@@ -62,7 +62,7 @@ jobs:
       - run: git config user.email ci-bot@example.com
       - run: git add docs
       - run: git commit -m "API Docs for version ${{ github.ref_name }}"
-      - run: git push origin api-docs
+      - run: git push origin gh-pages
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
@@ -73,7 +73,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
+    permissions:
+      id-token: write
+      pages: write
     runs-on: ubuntu-latest
     needs: update_api_doc_branch
     steps:
