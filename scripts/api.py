@@ -292,12 +292,20 @@ def create_pr_to_api_repo(
             # Create PR using GitHub API (requires GitHub token)
             github_token = os.environ.get('GITHUB_TOKEN')
 
+            # Format the URL with the token authentication
+            auth_url = f"https://x-access-token:{github_token}@github.com/libhal/api.git"
+
+            origin = api_repo.remote("origin")
+            if origin.exists():
+                print("Updating API repo's 'origin' to use access token")
+                origin.set_url(auth_url)
+            else:
+                print("Adding remote 'origin' with access token")
+                origin = api_repo.create_remote("origin", auth_url)
+
             # Push the branch
             print(f"Pushing branch to remote...")
-            api_repo.git.push('--set-upstream',
-                              'origin',
-                              branch_name,
-                              f'--token={github_token}')
+            api_repo.git.push('--set-upstream', 'origin', branch_name)
 
             if github_token:
                 create_github_pr(
