@@ -282,9 +282,9 @@ def create_pr_to_api_repo(
 
             # Commit changes
             api_repo.git.add(A=True)
-            api_repo.git.config('user.name', 'libhal-bot')
-            api_repo.git.config(
-                'user.email', 'libhal-bot@users.noreply.github.com')
+            # api_repo.git.config('user.name', 'libhal-bot')
+            # api_repo.git.config(
+            #     'user.email', 'libhal-bot@users.noreply.github.com')
 
             commit_message = f"Add {repo_name} {version} API documentation"
             api_repo.git.commit('-m', commit_message)
@@ -296,7 +296,7 @@ def create_pr_to_api_repo(
             print(f"Pushing branch to remote...")
             api_repo.git.push(
                 '--set-upstream',
-                f'https://libhal-bot:{github_token}@github.com/libhal/api.git', branch_name)
+                f'https://{github_token}@github.com/libhal/api.git', branch_name)
 
             if github_token:
                 create_github_pr(
