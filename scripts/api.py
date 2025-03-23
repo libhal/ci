@@ -289,12 +289,15 @@ def create_pr_to_api_repo(
             commit_message = f"Add {repo_name} {version} API documentation"
             api_repo.git.commit('-m', commit_message)
 
-            # Push the branch
-            print(f"Pushing branch to remote...")
-            api_repo.git.push('--set-upstream', 'origin', branch_name)
-
             # Create PR using GitHub API (requires GitHub token)
             github_token = os.environ.get('GITHUB_TOKEN')
+
+            # Push the branch
+            print(f"Pushing branch to remote...")
+            api_repo.git.push(
+                '--set-upstream',
+                f'https://{github_token}@github.com/libhal/api.git', branch_name)
+
             if github_token:
                 create_github_pr(
                     token=github_token,
