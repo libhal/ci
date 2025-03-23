@@ -294,7 +294,10 @@ def create_pr_to_api_repo(
 
             # Push the branch
             print(f"Pushing branch to remote...")
-            api_repo.git.push('--set-upstream', 'origin', branch_name)
+            api_repo.git.push('--set-upstream',
+                              'origin',
+                              branch_name,
+                              f'--token={github_token}')
 
             if github_token:
                 create_github_pr(
