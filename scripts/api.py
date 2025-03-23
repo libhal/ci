@@ -275,7 +275,7 @@ def create_pr_to_api_repo(
                 return False
 
             print(f"Copying documentation from {source_path} to {dest_path}")
-            shutil.copytree(source_path, dest_path)
+            shutil.copytree(source_path, dest_path, dirs_exist_ok=True)
 
             # Generate the switcher.json file
             generate_switcher_json(repo_dir, repo_name, organization)
@@ -289,12 +289,24 @@ def create_pr_to_api_repo(
             commit_message = f"Add {repo_name} {version} API documentation"
             api_repo.git.commit('-m', commit_message)
 
+            # Create PR using GitHub API (requires GitHub token)
+            github_token = os.environ.get('GITHUB_TOKEN')
+
+            # Format the URL with the token authentication
+            auth_url = f"https://x-access-token:{github_token}@github.com/libhal/api.git"
+
+            origin = api_repo.remote("origin")
+            if origin.exists():
+                print("Updating API repo's 'origin' to use access token")
+                origin.set_url(auth_url)
+            else:
+                print("Adding remote 'origin' with access token")
+                origin = api_repo.create_remote("origin", auth_url)
+
             # Push the branch
             print(f"Pushing branch to remote...")
             api_repo.git.push('--set-upstream', 'origin', branch_name)
 
-            # Create PR using GitHub API (requires GitHub token)
-            github_token = os.environ.get('GITHUB_TOKEN')
             if github_token:
                 create_github_pr(
                     token=github_token,
