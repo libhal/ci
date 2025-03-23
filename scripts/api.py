@@ -275,7 +275,7 @@ def create_pr_to_api_repo(
                 return False
 
             print(f"Copying documentation from {source_path} to {dest_path}")
-            shutil.copytree(source_path, dest_path)
+            shutil.copytree(source_path, dest_path, dirs_exist_ok=True)
 
             # Generate the switcher.json file
             generate_switcher_json(repo_dir, repo_name, organization)

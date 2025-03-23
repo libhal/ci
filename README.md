@@ -6,6 +6,11 @@ software libraries for various hardware platforms. These workflows are designed
 to be used with the libhal library, but can be adapted for use with other
 libraries as well.
 
+## Executing Workflows Locally
+
+To test work flows locally on your machine, use the
+[`act`](https://nektosact.com/introduction.html) command.
+
 ## Workflows
 
 The repository contains the following workflows:
