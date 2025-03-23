@@ -296,7 +296,7 @@ def create_pr_to_api_repo(
             print(f"Pushing branch to remote...")
             api_repo.git.push(
                 '--set-upstream',
-                f'https://{github_token}@github.com/libhal/api.git', branch_name)
+                f'https://libhal-bot:{github_token}@github.com/libhal/api.git', branch_name)
 
             if github_token:
                 create_github_pr(
