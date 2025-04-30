@@ -47,41 +47,127 @@ jobs:
           submodules: true
           repository: ${{ inputs.repo }}
 
-      - name: 📥 Install libclang-11-dev (for name style check)
-        shell: bash
-        run: sudo apt install libclang-11-dev
+      - name: 📥 Install libclang-17-dev (for name style check)
+        run: sudo apt install libclang-17-dev pipx
+
+      - name: 📥 Install clangd-tidy
+        run: pipx install clangd-tidy
 
       - name: 🌐 Downloading .clang-format from libhal
         run: wget https://raw.githubusercontent.com/libhal/libhal/main/.clang-format -O .clang-format
 
       - name: 🧹 Format Check `include/` directory
+        id: format_include
+        continue-on-error: true
+        if: ${{ hashFiles('./include/') != '' }}
         uses: jidicula/clang-format-action@v4.11.0
-        if: always()
         with:
           clang-format-version: "18"
           check-path: ./include
           exclude-regex: ".*/third_party/.*"
 
-      - name: 🧹 Format Check `src/` directory
-        uses: jidicula/clang-format-action@v4.11.0
+      - name: 🧹 Format Check `./src/` directory
+        id: format_src
+        continue-on-error: true
         if: ${{ hashFiles(inputs.source_dir) != '' }}
+        uses: jidicula/clang-format-action@v4.11.0
         with:
           clang-format-version: "18"
           check-path: ${{ inputs.source_dir }}
           exclude-regex: ".*/third_party/.*"
 
-      - name: 🧹 Format Check `demos/` directory
-        uses: jidicula/clang-format-action@v4.11.0
+      - name: 🧹 Format Check `./demos/` directory
+        id: format_demos
+        continue-on-error: true
         if: ${{ hashFiles('./demos/') != '' }}
+        uses: jidicula/clang-format-action@v4.11.0
         with:
           clang-format-version: "18"
           check-path: ./demos/
           exclude-regex: ".*/third_party/.*"
 
-      - name: 🧹 Format Check `test/` code
+      - name: 🧹 Format Check `./tests/` code
+        id: format_tests
+        continue-on-error: true
+        if: ${{ hashFiles('./tests/') != '' }}
         uses: jidicula/clang-format-action@v4.11.0
-        if: always()
         with:
           clang-format-version: "18"
           check-path: ./tests
           exclude-regex: ".*/third_party/.*"
+
+      - name: 🔎 clangd-tidy Check `./include/` directory
+        id: tidy_include
+        continue-on-error: true
+        if: ${{ hashFiles('./include/') != '' }}
+        run: clangd-tidy --query-driver="**/g++,**/*-g++" -p . include/**/*
+
+      - name: 🔎 clangd-tidy `./src/` directory
+        id: tidy_src
+        continue-on-error: true
+        if: ${{ hashFiles('./src/') != '' }}
+        run: clangd-tidy --query-driver="**/g++,**/*-g++" -p . src/**/*
+
+      - name: 🔎 clangd-tidy `./demos/` directory
+        id: tidy_demos
+        continue-on-error: true
+        if: ${{ hashFiles('./demos/') != '' }}
+        run: clangd-tidy --query-driver="**/g++,**/*-g++" -p . demos/**/*
+
+      - name: 🔎 clangd-tidy `./tests/` code
+        id: tidy_tests
+        continue-on-error: true
+        if: ${{ hashFiles('./tests/') != '' }}
+        run: clangd-tidy --query-driver="**/g++,**/*-g++" -p . tests/**/*
+
+      - name: Check all results and fail if any check failed
+        if: always()
+        run: |
+          FAILED=0
+
+          if [[ "${{ steps.format_include.outcome }}" == "failure" ]]; then
+            echo "❌ Format check for include/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.format_src.outcome }}" == "failure" ]]; then
+            echo "❌ Format check for src/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.format_demos.outcome }}" == "failure" ]]; then
+            echo "❌ Format check for demos/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.format_tests.outcome }}" == "failure" ]]; then
+            echo "❌ Format check for tests/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.tidy_include.outcome }}" == "failure" ]]; then
+            echo "❌ Clangd-tidy check for include/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.tidy_src.outcome }}" == "failure" ]]; then
+            echo "❌ Clangd-tidy check for src/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.tidy_demos.outcome }}" == "failure" ]]; then
+            echo "❌ Clangd-tidy check for demos/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ "${{ steps.tidy_tests.outcome }}" == "failure" ]]; then
+            echo "❌ Clangd-tidy check for tests/ directory failed"
+            FAILED=1
+          fi
+
+          if [[ $FAILED -eq 1 ]]; then
+            echo "One or more linting checks failed"
+            exit 1
+          else
+            echo "✅ All linting checks passed"
+          fi
