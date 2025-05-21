@@ -177,7 +177,7 @@ jobs:
 
       # - name: 📥 Install gcovr
       #   if: ${{ matrix.enable_coverage }}
-      #   run: pip3 install gcovr
+      #   run: pipx install gcovr
 
       # - name: 🔎 Generate Code Coverage
       #   if: ${{ matrix.enable_coverage }}
