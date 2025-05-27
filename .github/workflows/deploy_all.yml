@@ -1,4 +1,4 @@
-# Copyright 2024 Khalil Estell
+# Copyright 2024 - 2025 Khalil Estell and the libhal contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ on:
         default: ""
       conan_version:
         type: string
-        default: "2.10.1"
+        default: "2.16.1"
 
 jobs:
   linux_x86_64_clang:

@@ -1,4 +1,4 @@
-# Copyright 2024 Khalil Estell
+# Copyright 2024 - 2025 Khalil Estell and the libhal contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ on:
         default: ""
       conan_version:
         type: string
-        default: "2.10.1"
+        default: "2.16.1"
       compiler_profile_url:
         type: string
         required: true
@@ -66,7 +66,7 @@ jobs:
           repository: ${{ inputs.repo }}
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
-        run: pip3 install conan==${{ inputs.conan_version }}
+        run: pipx install conan==${{ inputs.conan_version }}
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal

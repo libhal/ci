@@ -1,4 +1,4 @@
-# Copyright 2024 Khalil Estell
+# Copyright 2024 - 2025 Khalil Estell and the libhal contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,10 +46,6 @@ jobs:
         with:
           submodules: true
           repository: ${{ inputs.repo }}
-
-      - name: 📥 Install libclang-11-dev (for name style check)
-        shell: bash
-        run: sudo apt install libclang-11-dev
 
       - name: 🌐 Downloading .clang-format from libhal
         run: wget https://raw.githubusercontent.com/libhal/libhal/main/.clang-format -O .clang-format
