@@ -16,5 +16,5 @@ jobs:
         uses: tiacsys/git-rebase@v1.0.1
         with:
           repo: "https://kammce:${{ secrets.API_PUSH_TOKEN }}@github.com/libhal/ci.git"
-          source_branch: "main"
-          destination_branch: "$BRANCH_NAME"
+          source_branch: "$BRANCH_NAME"
+          destination_branch: "main"
