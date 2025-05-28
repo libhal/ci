@@ -221,7 +221,41 @@ def generate_switcher_json(repo_dir: str,
         return False
 
 
-def create_pr_to_api_repo(
+def check_existing_pr(token: str,
+                      repo: str,
+                      head: str,
+                      base: str = "main") -> dict:
+    """
+    Check if a PR already exists for the given head branch.
+
+    Args:
+        token: GitHub Personal Access Token
+        repo: Repository (format: owner/repo)
+        head: Branch containing changes
+        base: Branch to merge into
+
+    Returns:
+        dict: PR data if exists, None if no PR exists
+    """
+    url = f"https://api.github.com/repos/{repo}/pulls"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    params = {
+        "head": head,
+        "base": base,
+        "state": "open"
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+
+    prs = response.json()
+    return prs[0] if prs else None
+
+
+def create_pr_or_update_branch_on_api_repo(
     version: str,
     repo_name: str,
     docs_dir: str = "build/api",
@@ -230,7 +264,7 @@ def create_pr_to_api_repo(
     branch_name: str = None
 ) -> bool:
     """
-    Create a pull request to the centralized API docs repository.
+    Create a pull request to the centralized API docs repository or update existing branch.
 
     Args:
         version: The version tag (e.g. 1.2.3)
@@ -251,6 +285,14 @@ def create_pr_to_api_repo(
     # Generate a branch name if not provided
     if not branch_name:
         branch_name = f"{repo_name}-{version}"
+
+    # Create PR using GitHub API (requires GitHub token)
+    github_token = os.environ.get('GITHUB_TOKEN')
+
+    if not github_token:
+        print("GitHub token not found. Branch pushed but PR not created.")
+        print(f"Create a PR manually from branch: {branch_name}")
+        return False
 
     # Create a temporary directory to clone the API repo
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -289,9 +331,6 @@ def create_pr_to_api_repo(
             commit_message = f"Add {repo_name} {version} API documentation"
             api_repo.git.commit('-m', commit_message)
 
-            # Create PR using GitHub API (requires GitHub token)
-            github_token = os.environ.get('GITHUB_TOKEN')
-
             # Format the URL with the token authentication
             auth_url = f"https://x-access-token:{github_token}@github.com/libhal/api.git"
 
@@ -303,11 +342,26 @@ def create_pr_to_api_repo(
                 print("Adding remote 'origin' with access token")
                 origin = api_repo.create_remote("origin", auth_url)
 
+            # Force Push because we allow APIs for a specific version to
+            # reflect the latest representation of the version/ref.
             print(f"Pushing branch to remote...")
             api_repo.git.push('--force', '--set-upstream',
                               'origin', branch_name)
 
-            if github_token:
+            # Check if PR already exists
+            existing_pr = check_existing_pr(
+                token=github_token,
+                repo=f"{organization}/api",
+                head=branch_name,
+                base="main"
+            )
+
+            if existing_pr:
+                print(
+                    f"Pull request already exists: {existing_pr['html_url']}")
+                print(
+                    f"Updated existing PR with new documentation for {repo_name} {version}")
+            else:
                 create_github_pr(
                     token=github_token,
                     repo=f"{organization}/api",
@@ -318,9 +372,6 @@ def create_pr_to_api_repo(
                 )
                 print(
                     f"Pull request created successfully for {repo_name} {version}")
-            else:
-                print("GitHub token not found. Branch pushed but PR not created.")
-                print(f"Create a PR manually from branch: {branch_name}")
 
             return True
 
@@ -423,7 +474,7 @@ def main():
             print("Install with: pip install gitpython")
             return 1
 
-        success = create_pr_to_api_repo(
+        success = create_pr_or_update_branch_on_api_repo(
             args.version,
             args.repo_name,
             args.docs_dir,
