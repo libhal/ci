@@ -260,7 +260,7 @@ def create_pr_to_api_repo(
 
             # Checkout existing branch or create a new branch
             print(f"Switching to branch: {branch_name}")
-            api_repo.git.switch('-c', branch_name)
+            api_repo.git.checkout('-B', branch_name)
 
             # Create repo directory if it doesn't exist
             repo_dir = os.path.join(temp_dir, repo_name)
@@ -303,7 +303,6 @@ def create_pr_to_api_repo(
                 print("Adding remote 'origin' with access token")
                 origin = api_repo.create_remote("origin", auth_url)
 
-            # Push the branch
             print(f"Pushing branch to remote...")
             api_repo.git.push('--set-upstream', 'origin', branch_name)
 

@@ -29,7 +29,7 @@ jobs:
       - run: sudo apt install -y doxygen
       - run: wget https://raw.githubusercontent.com/libhal/ci/5.x.y/scripts/api.py
       - run: wget https://raw.githubusercontent.com/libhal/ci/5.x.y/scripts/api_py_requirements.txt
-      - run: pip install -r docs/requirements.txt gitpython requests
+      - run: pip install -r api_py_requirements.txt gitpython requests
       - run: python api.py build --version ${{ github.ref_name }}
       - run: python api.py deploy --version ${{ github.ref_name }} --repo-name ${{ github.event.repository.name }}
         env:
