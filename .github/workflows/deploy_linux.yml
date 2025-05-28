@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Package 📦 + 🚀 Deploy
+name: Deploy Linux
 
 on:
   workflow_call:

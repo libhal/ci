@@ -153,8 +153,8 @@ jobs:
     with:
       compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
       compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-lpc40.git
-      platform_profile: v2/lpc4078
+      platform_profile_url: https://github.com/libhal/libhal-arm-mcu.git
+      platform_profile: v1/lpc4078
     secrets: inherit
 
 ```

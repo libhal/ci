@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 🏗️ Demo Builder
+name: 🏗️ App Builder
 
 on:
   workflow_call:
