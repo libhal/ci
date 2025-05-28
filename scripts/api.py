@@ -258,9 +258,9 @@ def create_pr_to_api_repo(
             print(f"Cloning {api_repo_url} into temporary directory...")
             api_repo = Repo.clone_from(api_repo_url, temp_dir)
 
-            # Create a new branch
-            print(f"Creating new branch: {branch_name}")
-            api_repo.git.checkout('-b', branch_name)
+            # Checkout existing branch or create a new branch
+            print(f"Switching to branch: {branch_name}")
+            api_repo.git.switch('-c', branch_name)
 
             # Create repo directory if it doesn't exist
             repo_dir = os.path.join(temp_dir, repo_name)
@@ -379,21 +379,31 @@ def main():
 
     # Build command
     build_parser = subparsers.add_parser("build", help="Build documentation")
-    build_parser.add_argument(
-        "--version", required=True, help="Version tag (e.g. 1.2.3)")
-    build_parser.add_argument(
-        "--output-dir", default="build/api/", help="Output directory")
+    build_parser.add_argument("--version",
+                              required=True,
+                              help="Version tag (e.g. 1.2.3)")
+    build_parser.add_argument("--output-dir",
+                              default="build/api/",
+                              help="Output directory")
 
     # Deploy command
     deploy_parser = subparsers.add_parser(
-        "deploy", help="Deploy documentation to API repo")
+        "deploy",
+        help="Deploy documentation to API repo")
     deploy_parser.add_argument(
-        "--version", required=True, help="Version tag (e.g. 1.2.3)")
+        "--version",
+        required=True,
+        help="Version tag (e.g. 1.2.3)")
     deploy_parser.add_argument(
-        "--repo-name", required=True, help="Repository name (e.g. libhal-arm)")
+        "--repo-name",
+        required=True,
+        help="Repository name (e.g. libhal-arm)")
     deploy_parser.add_argument(
-        "--docs-dir", default="build/api/", help="Directory containing built docs")
-    deploy_parser.add_argument("--api-repo", default="https://github.com/libhal/api.git",
+        "--docs-dir",
+        default="build/api/",
+        help="Directory containing built docs")
+    deploy_parser.add_argument("--api-repo",
+                               default="https://github.com/libhal/api.git",
                                help="URL of the API documentation repository")
     deploy_parser.add_argument("--organization", default="libhal",
                                help="GitHub organization name")
