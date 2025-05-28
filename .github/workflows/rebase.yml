@@ -1,38 +1,20 @@
 name: rebase
 
+env:
+  BRANCH_NAME: Hello
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        required: true
-        type: string
-      repository:
-        required: true
-        type: string
-        
+  
 permissions:
   contents: write
 
 jobs:
-  rebase:
-    runs-on: [ ubuntu-latest ]
-
-    concurrency:
-      group: "rebase-${{ inputs.branch }}"
-      cancel-in-progress: false
-
+  git-rebase:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: git-rebase
+        uses: tiacsys/git-rebase@v3
         with:
-          fetch-depth: 0
-          ref: ${{ inputs.branch }}
-
-      - name: Rebase ${{ inputs.branch }}
-        uses: martincostello/rebaser@v1
-        id: rebase
-
-      - name: Push changes
-        if : ${{ steps.rebase.outputs.result == 'success' }}
-        run: git push --force-with-lease origin ${{ inputs.branch }}
-        
+          repo: "libhal/ci"
+          source_branch: "$BRANCH_NAME"
+          destination_branch: "main"
