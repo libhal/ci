@@ -3,7 +3,9 @@ name: 🔁 rebase
 env:
   BRANCH_NAME: 5.x.y
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
   
 permissions:
   contents: write
