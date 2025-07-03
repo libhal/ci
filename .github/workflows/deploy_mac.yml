@@ -42,6 +42,12 @@ jobs:
           - os: macos-15
             profile_path: profiles/x86_64/mac-15/
 
+          - os: macos-14
+            profile_path: profiles/armv8/mac-14/
+
+          - os: macos-15
+            profile_path: profiles/armv8/mac-15/
+
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4.1.1
