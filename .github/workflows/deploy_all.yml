@@ -41,6 +41,14 @@ jobs:
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
     secrets: inherit
+  mac_os_x:
+    uses: ./.github/workflows/deploy_mac.yml
+    with:
+      library: ${{ inputs.library }}
+      repo: ${{ inputs.repo }}
+      version: ${{ inputs.version }}
+      conan_version: ${{ inputs.conan_version }}
+    secrets: inherit
   cortex-m0:
     uses: ./.github/workflows/deploy.yml
     with:
