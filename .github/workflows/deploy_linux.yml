@@ -29,6 +29,14 @@ on:
       version:
         type: string
         default: ""
+      # Version of LLVM to install via homebrew
+      llvm:
+        type: string
+        default: "17"
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
 
 jobs:
   deploy:
@@ -53,11 +61,11 @@ jobs:
           sudo rm -f /usr/bin/clang-tidy
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt install libc++-17-dev libc++abi-17-dev
+          sudo ./llvm.sh ${{ inputs.llvm }}
+          sudo apt install libc++-${{ inputs.llvm }}-dev libc++abi-${{ inputs.llvm }}-dev
           sudo apt-get install pipx
           pipx ensurepath
-          sudo apt install clang-tidy-17
+          sudo apt install clang-tidy-${{ inputs.llvm }}
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
@@ -90,16 +98,16 @@ jobs:
           fi
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=Debug --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=Debug --version=${{ env.VERSION }}
 
       - name: 📦 Create `RelWithDebInfo` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=RelWithDebInfo --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=RelWithDebInfo --version=${{ env.VERSION }}
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=MinSizeRel --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=MinSizeRel --version=${{ env.VERSION }}
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=Release --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=Release --version=${{ env.VERSION }}
 
       - name: 📡 Sign into JFrog Artifactory
         if: ${{ inputs.version != '' }}

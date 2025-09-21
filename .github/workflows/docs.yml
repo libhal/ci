@@ -29,6 +29,10 @@ on:
       version:
         type: string
         default: ""
+      # Directory where the conan package exists
+      dir:
+        type: string
+        required: true
 
 jobs:
   docs:

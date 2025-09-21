@@ -92,6 +92,7 @@ jobs:
     with:
       library: libhal-micromod
       source_dir: src
+      dir: src
       repo: libhal/libhal-micromod
     secrets: inherit
 
@@ -100,6 +101,7 @@ jobs:
     with:
       library: libhal-micromod
       source_dir: src
+      dir: src
       repo: libhal/libhal-micromod
     secrets: inherit
 
