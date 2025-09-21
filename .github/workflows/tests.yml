@@ -38,7 +38,14 @@ on:
       conan_version:
         type: string
         required: true
-
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
+      # Version of LLVM to install via homebrew
+      llvm:
+        type: string
+        default: "17"
 jobs:
   run_tests:
     strategy:
@@ -86,11 +93,11 @@ jobs:
           sudo rm -f /usr/bin/clang-tidy
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt install libc++-17-dev libc++abi-17-dev
+          sudo ./llvm.sh ${{ inputs.llvm }}
+          sudo apt install libc++-${{ inputs.llvm }}-dev libc++abi-${{ inputs.llvm }}-dev
           sudo apt-get install pipx
           pipx ensurepath
-          sudo apt install clang-tidy-17
+          sudo apt install clang-tidy-${{ inputs.llvm }}
 
       - name: 📥 Install OS Specific Tools (ubuntu-24.04)
         if: ${{ matrix.os == 'ubuntu-24.04' }}
@@ -99,25 +106,25 @@ jobs:
           sudo rm -f /usr/bin/clang-tidy
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt install libc++-17-dev libc++abi-17-dev
+          sudo ./llvm.sh ${{ inputs.llvm }}
+          sudo apt install libc++-${{ inputs.llvm }}-dev libc++abi-${{ inputs.llvm }}-dev
           sudo apt-get install pipx
           pipx ensurepath
-          sudo apt install clang-tidy-17
+          sudo apt install clang-tidy-${{ inputs.llvm }}
 
       - name: 📥 Install OS Specific Tools (macos-14)
         if: ${{ matrix.os == 'macos-14' }}
         run: |
-          brew install llvm@17
-          ln -s $(brew --prefix llvm@17)/bin/clang-tidy /usr/local/bin/
+          brew install llvm@${{ inputs.llvm }}
+          ln -s $(brew --prefix llvm@${{ inputs.llvm }})/bin/clang-tidy /usr/local/bin/
           brew install pipx
           pipx ensurepath
 
       - name: 📥 Install OS Specific Tools (macos-15)
         if: ${{ matrix.os == 'macos-15' }}
         run: |
-          brew install llvm@17
-          ln -s $(brew --prefix llvm@17)/bin/clang-tidy /usr/local/bin/
+          brew install llvm@${{ inputs.llvm }}
+          ln -s $(brew --prefix llvm@${{ inputs.llvm }})/bin/clang-tidy /usr/local/bin/
           brew install pipx
           pipx ensurepath
 
@@ -131,13 +138,13 @@ jobs:
         run: cmake --version
 
       - name: 🔍 clang++ version
-        run: clang++-17 --version || clang++ --version
+        run: clang++-${{ inputs.llvm }} --version || clang++ --version
 
       - name: 🔍 /usr/bin version
         run: ls /usr/bin/clang*
 
       - name: 🔍 clang-tidy version
-        run: clang-tidy-17 --version || clang-tidy --version
+        run: clang-tidy-${{ inputs.llvm }} --version || clang-tidy --version
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
@@ -161,47 +168,8 @@ jobs:
 
       - name: 🔬 Create & Run Unit Tests (Windows-MinSizeRel)
         if: ${{ runner.os == 'Windows' }}
-        run: $env:VERBOSE = 1 ; conan create . --build=missing -s build_type=MinSizeRel --version='latest'
+        run: $env:VERBOSE = 1 ; conan create ${{ inputs.dir }} --build=missing -s build_type=MinSizeRel --version='latest'
 
       - name: 🔬 Create & Run Unit Tests (Everything_Else-MinSizeRel)
         if: ${{ runner.os != 'Windows' }}
-        run: VERBOSE=1 conan create . --build=missing -s build_type=MinSizeRel --version="latest"
-
-      # ========================================================================
-      # DISABLE COVERAGE! Not sure if its worth it to support it as a part of CI
-      # ========================================================================
-
-      # - name: 🔬 Build & Run Unit Tests (for coverage Debug)
-      #   if: ${{ matrix.enable_coverage }}
-      #   run: VERBOSE=1 conan build . --build=missing -s build_type=Debug --version="latest"
-
-      # - name: 📥 Install gcovr
-      #   if: ${{ matrix.enable_coverage }}
-      #   run: pipx install gcovr
-
-      # - name: 🔎 Generate Code Coverage
-      #   if: ${{ matrix.enable_coverage }}
-      #   working-directory: build
-      #   run: |
-      #     mkdir coverage/ && python3 -m gcovr --root ../../ --exclude ".*/third_party/.*" --cobertura coverage/coverage.xml --html coverage/index.html --html-details --sort-percentage
-
-      # - name: Coverage Summary
-      #   if: ${{ matrix.enable_coverage }}
-      #   uses: irongut/CodeCoverageSummary@v1.3.0
-      #   with:
-      #     filename: build/coverage/coverage.xml
-      #     badge: true
-      #     fail_below_min: ${{ inputs.fail_on_coverage }}
-      #     format: markdown
-      #     hide_branch_rate: false
-      #     hide_complexity: true
-      #     indicators: true
-      #     output: both
-      #     thresholds: ${{ inputs.coverage_threshold }}
-
-      # - name: Extract & Save Coverage SVG
-      #   if: ${{ matrix.enable_coverage }}
-      #   run: wget
-      #     $(cat code-coverage-results.md |
-      #     grep -Eo 'https://img.shields.io/badge/[^)]*')
-      #     -O build/coverage/coverage.svg
+        run: VERBOSE=1 conan create ${{ inputs.dir }} --build=missing -s build_type=MinSizeRel --version="latest"

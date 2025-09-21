@@ -41,6 +41,10 @@ on:
       conan_version:
         type: string
         default: "2.16.1"
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
 
 jobs:
   tests:
@@ -53,6 +57,7 @@ jobs:
       fail_on_coverage: ${{ inputs.fail_on_coverage }}
       coverage_threshold: ${{ inputs.coverage_threshold }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
     secrets: inherit
 
   lint:
@@ -62,6 +67,7 @@ jobs:
       version: ${{ inputs.version }}
       source_dir: ${{ inputs.source_dir }}
       repo: ${{ inputs.repo }}
+      dir: ${{ inputs.dir }}
     secrets: inherit
 
   docs:
@@ -71,4 +77,5 @@ jobs:
       version: ${{ inputs.version }}
       source_dir: ${{ inputs.source_dir }}
       repo: ${{ inputs.repo }}
+      dir: ${{ inputs.dir }}
     secrets: inherit

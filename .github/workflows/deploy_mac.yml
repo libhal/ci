@@ -29,6 +29,14 @@ on:
       version:
         type: string
         default: ""
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
+      # Version of LLVM to install via homebrew
+      llvm:
+        type: string
+        default: "17"
 
 jobs:
   deploy_all_mac:
@@ -60,16 +68,16 @@ jobs:
       - name: 📥 Install OS Specific Tools (macos-14)
         if: ${{ matrix.os == 'macos-14' }}
         run: |
-          brew install llvm@17
-          ln -s $(brew --prefix llvm@17)/bin/clang-tidy /usr/local/bin/
+          brew install llvm@${{ inputs.llvm }}
+          ln -s $(brew --prefix llvm@${{ inputs.llvm }})/bin/clang-tidy /usr/local/bin/
           brew install pipx
           pipx ensurepath
 
       - name: 📥 Install OS Specific Tools (macos-15)
         if: ${{ matrix.os == 'macos-15' }}
         run: |
-          brew install llvm@17
-          ln -s $(brew --prefix llvm@17)/bin/clang-tidy /usr/local/bin/
+          brew install llvm@${{ inputs.llvm }}
+          ln -s $(brew --prefix llvm@${{ inputs.llvm }})/bin/clang-tidy /usr/local/bin/
           brew install pipx
           pipx ensurepath
 
@@ -83,13 +91,13 @@ jobs:
         run: cmake --version
 
       - name: 🔍 clang++ version
-        run: clang++-17 --version || clang++ --version
+        run: clang++-${{ inputs.llvm }} --version || clang++ --version
 
       - name: 🔍 /usr/bin version
         run: ls /usr/bin/clang*
 
       - name: 🔍 clang-tidy version
-        run: clang-tidy-17 --version || clang-tidy --version
+        run: clang-tidy-${{ inputs.llvm }} --version || clang-tidy --version
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
@@ -122,16 +130,16 @@ jobs:
           fi
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create . -pr mac-hal -s build_type=Debug --version=${{ env.VERSION }} -b missing
+        run: conan create ${{ inputs.dir }} -pr mac-hal -s build_type=Debug --version=${{ env.VERSION }} -b missing
 
       - name: 📦 Create `RelWithDebInfo` package for ${{ inputs.profile }}
-        run: conan create . -pr mac-hal -s build_type=RelWithDebInfo --version=${{ env.VERSION }} -b missing
+        run: conan create ${{ inputs.dir }} -pr mac-hal -s build_type=RelWithDebInfo --version=${{ env.VERSION }} -b missing
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create . -pr mac-hal -s build_type=MinSizeRel --version=${{ env.VERSION }} -b missing
+        run: conan create ${{ inputs.dir }} -pr mac-hal -s build_type=MinSizeRel --version=${{ env.VERSION }} -b missing
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create . -pr mac-hal -s build_type=Release --version=${{ env.VERSION }} -b missing
+        run: conan create ${{ inputs.dir }} -pr mac-hal -s build_type=Release --version=${{ env.VERSION }} -b missing
 
       - name: 📡 Sign into JFrog Artifactory
         if: ${{ inputs.version != '' }}

@@ -47,6 +47,10 @@ on:
       platform_profile_branch:
         type: string
         default: "main"
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
 
 jobs:
   build:
@@ -88,4 +92,4 @@ jobs:
         run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.platform_profile_branch }} --single-branch" ${{ inputs.platform_profile_url }}
 
       - name: 🏗️ Build demos for ${{ inputs.profile }}
-        run: conan build demos -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
+        run: conan build ${{ inputs.dir }}/demos -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}

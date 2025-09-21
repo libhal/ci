@@ -31,6 +31,10 @@ on:
       conan_version:
         type: string
         default: "2.16.1"
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
 
 jobs:
   linux_x86_64_clang:
@@ -40,6 +44,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
     secrets: inherit
   mac_os_x:
     uses: ./.github/workflows/deploy_mac.yml
@@ -48,6 +53,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
     secrets: inherit
   cortex-m0:
     uses: ./.github/workflows/deploy.yml
@@ -56,6 +62,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain
@@ -69,6 +76,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain
@@ -82,6 +90,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain
@@ -95,6 +104,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain
@@ -108,6 +118,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain
@@ -121,6 +132,7 @@ jobs:
       repo: ${{ inputs.repo }}
       version: ${{ inputs.version }}
       conan_version: ${{ inputs.conan_version }}
+      dir: ${{ inputs.dir }}
       compiler: gcc
       compiler_version: 12.3
       compiler_package: arm-gnu-toolchain

@@ -47,6 +47,10 @@ on:
       external_package:
         type: boolean
         default: false
+      # Directory where the conan package exists
+      dir:
+        type: string
+        default: "."
 
 jobs:
   deploy:
@@ -69,15 +73,8 @@ jobs:
 
       - name: 📥 Install OS Specific Tools
         run: |
-          sudo apt remove clang-tidy
-          sudo rm -f /usr/bin/clang-tidy
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt install libc++-17-dev libc++abi-17-dev
           sudo apt-get install pipx
           pipx ensurepath
-          sudo apt install clang-tidy-17
 
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
@@ -123,16 +120,16 @@ jobs:
           echo "${{ inputs.compiler_package }}/${{ inputs.compiler_version }}" >> deploy.profile
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=Debug -pr deploy.profile --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=Debug -pr deploy.profile --version=${{ env.VERSION }}
 
       - name: 📦 Create `RelWithDebInfo` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=RelWithDebInfo -pr deploy.profile --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=RelWithDebInfo -pr deploy.profile --version=${{ env.VERSION }}
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=MinSizeRel -pr deploy.profile --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=MinSizeRel -pr deploy.profile --version=${{ env.VERSION }}
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create . -s build_type=Release -pr deploy.profile --version=${{ env.VERSION }}
+        run: conan create ${{ inputs.dir }} -s build_type=Release -pr deploy.profile --version=${{ env.VERSION }}
 
       - name: 📡 Sign into JFrog Artifactory
         if: ${{ inputs.version != '' }}
