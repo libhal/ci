@@ -52,6 +52,7 @@ jobs:
           repository: ${{ inputs.repo }}
 
       - name: 🌐 Downloading doxygen from ci
+        working-directory: ${{ inputs.dir }}
         run: wget https://raw.githubusercontent.com/libhal/ci/main/doxygen.conf -O doxygen.conf
 
       - name: 📖 Run Doxygen
@@ -59,10 +60,12 @@ jobs:
         uses: mattnotmitt/doxygen-action@v1.12.0
         if: always()
         with:
+          working-directory: ${{ inputs.dir }}
           doxyfile-path: "doxygen.conf"
 
       # Conditionally read out any doxygen warnings only if `doxygen_check`
       # step failed.
       - name: ⚠️ Read out any doxygen warnings
         if: ${{ failure() && steps.doxygen.conclusion == 'failure' }}
+        working-directory: ${{ inputs.dir }}
         run: cat doxygen_warn.log ; exit 1

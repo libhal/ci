@@ -52,6 +52,7 @@ jobs:
           repository: ${{ inputs.repo }}
 
       - name: 🌐 Downloading .clang-format from libhal
+        working-directory: ${{ inputs.dir }}
         run: wget https://raw.githubusercontent.com/libhal/libhal/main/.clang-format -O .clang-format
 
       - name: 🧹 Format Check `include/` directory
@@ -59,7 +60,7 @@ jobs:
         if: always()
         with:
           clang-format-version: "18"
-          check-path: ./include
+          check-path: ${{ inputs.dir }}/include
           exclude-regex: ".*/third_party/.*"
 
       - name: 🧹 Format Check `src/` directory
@@ -67,7 +68,7 @@ jobs:
         if: ${{ hashFiles(inputs.source_dir) != '' }}
         with:
           clang-format-version: "18"
-          check-path: ${{ inputs.source_dir }}
+          check-path: ${{ inputs.dir }}/${{ inputs.source_dir }}
           exclude-regex: ".*/third_party/.*"
 
       - name: 🧹 Format Check `demos/` directory
@@ -75,7 +76,7 @@ jobs:
         if: ${{ hashFiles('./demos/') != '' }}
         with:
           clang-format-version: "18"
-          check-path: ./demos/
+          check-path: ${{ inputs.dir }}/demos
           exclude-regex: ".*/third_party/.*"
 
       - name: 🧹 Format Check `test/` code
@@ -83,5 +84,5 @@ jobs:
         if: always()
         with:
           clang-format-version: "18"
-          check-path: ./tests
+          check-path: ${{ inputs.dir }}/tests
           exclude-regex: ".*/third_party/.*"
