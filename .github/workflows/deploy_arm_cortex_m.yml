@@ -89,6 +89,12 @@ jobs:
       - name: 📡 Install libhal settings_user.yml
         run: conan config install -sf profiles/baremetal/v2 https://github.com/libhal/conan-config.git
 
+      - name: Install ARM GCC compiler profiles
+        run: conan config install -tf profiles -sf conan/profiles/v1 https://github.com/libhal/arm-gnu-toolchain.git
+
+      - name: Install ARM MCU platform profiles
+        run: conan config install -sf conan/profiles/v1 -tf profiles https://github.com/libhal/libhal-arm-mcu.git
+
       - name: Set Version Environment Variable
         run: |
           if [ -z "${{ inputs.version }}" ]; then
@@ -96,17 +102,19 @@ jobs:
           else
             echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
           fi
+      # ==================================================================
+      # cortex-m0plus
+      # ==================================================================
+      - name: 📦 Create `Debug` package for cortex-m0plus
+        run: conan create ${{ inputs.dir }} -pr cortex-m0plus -pr arm-gcc-12.3 -s build_type=Debug --version=${{ env.VERSION }}
 
-      - name: 📦 Create `Debug` package
-        run: conan create ${{ inputs.dir }} -s build_type=Debug --version=${{ env.VERSION }}
+      - name: 📦 Create `RelWithDebInfo` package for cortex-m0plus
+        run: conan create ${{ inputs.dir }} -pr cortex-m0plus -pr arm-gcc-12.3 -s build_type=RelWithDebInfo --version=${{ env.VERSION }}
 
-      - name: 📦 Create `RelWithDebInfo` package
-        run: conan create ${{ inputs.dir }} -s build_type=RelWithDebInfo --version=${{ env.VERSION }}
-
-      - name: 📦 Create `MinSizeRel` package
+      - name: 📦 Create `MinSizeRel` package for cortex-m0plus
         run: conan create ${{ inputs.dir }} -s build_type=MinSizeRel --version=${{ env.VERSION }}
 
-      - name: 📦 Create `Release` package
+      - name: 📦 Create `Release` package for cortex-m0plus
         run: conan create ${{ inputs.dir }} -s build_type=Release --version=${{ env.VERSION }}
 
       - name: 📡 Sign into JFrog Artifactory
