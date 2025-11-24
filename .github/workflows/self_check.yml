@@ -29,13 +29,7 @@ jobs:
     with:
       library: libhal
       repo: libhal/libhal
-    secrets: inherit
-
-  libhal-arm-mcu:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
+      dir: v4
     secrets: inherit
 
   libhal-util:
@@ -112,66 +106,28 @@ jobs:
       repo: libhal/libhal-iot
     secrets: inherit
 
-  deploy-libhal:
-    uses: ./.github/workflows/deploy.yml
+  package-libhal_v4:
+    uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal
       repo: libhal/libhal
-      arch: x86_64
-      os: Linux
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: ""
+      dir: v4
     secrets: inherit
 
-  libhal-arm-mcu-deploy-cortex-m4f:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-      arch: cortex-m4f
-      os: baremetal
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: arm-gnu-toolchain
-    secrets: inherit
-
-  libhal-arm-mcu-deploy-cortex-m3:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-      arch: cortex-m3
-      os: baremetal
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: arm-gnu-toolchain
-    secrets: inherit
-
-  libhal-arm-mcu-deploy-cortex-m0plus:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-      arch: cortex-m0plus
-      os: baremetal
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: arm-gnu-toolchain
-    secrets: inherit
-
-  libhal-deploy-linux:
-    uses: ./.github/workflows/deploy_linux.yml
+  package-libhal_v5:
+    uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal
       repo: libhal/libhal
+      dir: v5
     secrets: inherit
 
-  libhal-util-package:
-    uses: ./.github/workflows/deploy_all.yml
+  package-libhal-util:
+    uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal-util
       repo: libhal/libhal-util
+      dir: v5
     secrets: inherit
 
   libhal-arm-mcu-lpc4078-demos:
