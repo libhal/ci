@@ -38,7 +38,7 @@ on:
       os:
         type: string
         required: true
-      compiler_profile: # can be "arm-gcc" or "llvm"
+      compiler_profile:
         type: string
         required: true
       dir: # Directory where the conan package exists
@@ -74,12 +74,6 @@ jobs:
           submodules: true
           repository: ${{ inputs.repo }}
 
-      - name: 📥 Clone CI repo for scripts
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: libhal/ci
-          path: ci
-
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
 
@@ -99,16 +93,16 @@ jobs:
         # repo.
 
       - name: 📡 Install libhal settings_user.yml
-        run: conan config install -sf profiles/baremetal/v2 https://github.com/libhal/conan-config.git
+        run: conan config install https://github.com/libhal/conan-config2.git
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug -pr:h ci/profiles/${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }}
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:b ${{ inputs.compiler_profile }}
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=MinSizeRel -pr:h ci/profiles/${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }}
+        run: conan create ${{ inputs.dir }} -s:h build_type=MinSizeRel -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:b ${{ inputs.compiler_profile }}
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=Release -pr:h ci/profiles/${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }}
+        run: conan create ${{ inputs.dir }} -s:h build_type=Release  -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:b ${{ inputs.compiler_profile }}
 
       - name: 📡 Sign into Conan Package Repository
         if: ${{ inputs.version != 'latest' && inputs.remote_url != '' && env.CONAN_REMOTE_USER != '' && env.CONAN_REMOTE_PASSWORD != '' }}

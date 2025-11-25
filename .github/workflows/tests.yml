@@ -79,12 +79,6 @@ jobs:
           submodules: true
           repository: ${{ inputs.repo }}
 
-      - name: 📥 Clone CI repo for scripts
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: libhal/ci
-          path: ci
-
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
 
@@ -98,5 +92,8 @@ jobs:
         run: conan remote add libhal
           https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
 
+      - name: 📡 Install libhal settings_user.yml
+        run: conan config install https://github.com/libhal/conan-config2.git
+
       - name: 🔬 Create & Run Unit Tests
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h ci/profiles/llvm
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm
