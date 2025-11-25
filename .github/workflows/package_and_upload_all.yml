@@ -137,24 +137,6 @@ jobs:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
-  cortex-m0_gcc:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m0
-      os: baremetal
-      compiler_profile: hal/tc/arm-gcc
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
-
   cortex-m0plus:
     uses: ./.github/workflows/package_and_upload.yml
     with:
