@@ -40,7 +40,7 @@ on:
         default: ${{ github.repository }}
       conan_version:
         type: string
-        default: "2.16.1"
+        default: 2.22.2
       # Directory where the conan package exists
       dir:
         type: string

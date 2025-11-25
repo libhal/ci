@@ -30,7 +30,7 @@ on:
         default: latest
       conan_version:
         type: string
-        default: 2.18.1
+        default: 2.22.2
       dir: # Directory where the conan package exists
         type: string
         default: .
