@@ -87,7 +87,7 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: mac-latest
+      runner_os: macos-latest
       arch: armv8
       os: Macos
       compiler_profile: hal/tc/llvm
@@ -105,7 +105,7 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: windows-arm
+      runner_os: windows-11-arm
       arch: armv8
       os: Windows
       compiler_profile: hal/tc/llvm
