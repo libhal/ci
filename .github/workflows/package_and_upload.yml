@@ -25,10 +25,13 @@ on:
         default: ${{ github.repository }}
       conan_version:
         type: string
-        default: "2.18.0"
+        default: 2.18.0
+      config2_version:
+        type: string
+        default: main
       version:
         type: string
-        default: "latest" # "latest" means (do not upload)
+        default: latest # "latest" means (do not upload)
       runner_os:
         type: string
         required: true
@@ -43,7 +46,7 @@ on:
         required: true
       dir: # Directory where the conan package exists
         type: string
-        default: "."
+        default: .
       remote_url: # Path to conan package repo
         type: string
         default: ""
@@ -93,7 +96,7 @@ jobs:
         # repo.
 
       - name: 📡 Install libhal settings_user.yml
-        run: conan config install https://github.com/libhal/conan-config2.git
+        run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
         run: conan create ${{ inputs.dir }} -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:b ${{ inputs.compiler_profile }}

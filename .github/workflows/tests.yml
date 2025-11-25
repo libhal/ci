@@ -38,6 +38,9 @@ on:
       conan_version:
         type: string
         required: true
+      config2_version:
+        type: string
+        default: main
       # Directory where the conan package exists
       dir:
         type: string
@@ -93,7 +96,7 @@ jobs:
           https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
 
       - name: 📡 Install libhal settings_user.yml
-        run: conan config install https://github.com/libhal/conan-config2.git
+        run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 🔬 Create & Run Unit Tests
         run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm

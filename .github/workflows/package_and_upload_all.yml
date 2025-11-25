@@ -27,13 +27,13 @@ on:
         default: ${{ github.repository }}
       version:
         type: string
-        default: "latest"
+        default: latest
       conan_version:
         type: string
-        default: "2.18.1"
+        default: 2.18.1
       dir: # Directory where the conan package exists
         type: string
-        default: "."
+        default: .
       remote_url:
         type: string
         default: ""
@@ -49,10 +49,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "x86_64"
-      os: "Linux"
-      compiler_profile: "llvm"
+      runner_os: ubuntu-24.04
+      arch: x86_64
+      os: Linux
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -68,10 +68,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "armv8"
-      os: "Linux"
-      compiler_profile: "llvm"
+      runner_os: ubuntu-24.04
+      arch: armv8
+      os: Linux
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -87,10 +87,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "mac-latest"
-      arch: "armv8"
-      os: "Macos"
-      compiler_profile: "llvm"
+      runner_os: mac-latest
+      arch: armv8
+      os: Macos
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -105,10 +105,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "windows-arm"
-      arch: "armv8"
-      os: "Windows"
-      compiler_profile: "llvm"
+      runner_os: windows-arm
+      arch: armv8
+      os: Windows
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -123,10 +123,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "windows-latest"
-      arch: "x86_64"
-      os: "Windows"
-      compiler_profile: "llvm"
+      runner_os: windows-latest
+      arch: x86_64
+      os: Windows
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -141,10 +141,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m0"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m0
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -159,10 +159,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m0plus"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m0plus
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -177,10 +177,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m1"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m1
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -195,10 +195,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m3"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m3
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -213,10 +213,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m4"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m4
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -231,10 +231,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m4f"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m4f
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -249,10 +249,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m7f"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m7f
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -267,10 +267,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m7d"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m7d
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -285,10 +285,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m23"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m23
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -303,10 +303,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m33"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m33
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -321,10 +321,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m33f"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m33f
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -339,10 +339,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m35pf"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m35pf
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -357,10 +357,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m55"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m55
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -375,10 +375,10 @@ jobs:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       # Target specific
-      runner_os: "ubuntu-24.04"
-      arch: "cortex-m85"
-      os: "baremetal"
-      compiler_profile: "arm-gcc"
+      runner_os: ubuntu-24.04
+      arch: cortex-m85
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
