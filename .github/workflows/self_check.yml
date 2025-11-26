@@ -132,7 +132,7 @@ jobs:
     with:
       repo: libhal/libhal-actuator
       dir: demos
-      compiler_profile: v1/arm-gcc-12.3
+      compiler_profile: hal/tc/arm-gcc-12.3
       platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
@@ -141,7 +141,7 @@ jobs:
     with:
       repo: libhal/libhal-actuator
       dir: demos
-      compiler_profile: v1/arm-gcc-12.3
+      compiler_profile: hal/tc/arm-gcc-12.3
       platform_profile: hal/mcu/lpc4074
     secrets: inherit
 
