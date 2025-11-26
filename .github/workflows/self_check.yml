@@ -119,28 +119,28 @@ jobs:
   #   secrets: inherit
 
   libhal-arm-mcu-lpc4078-demos:
-    uses: ./.github/workflows/demo_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
-      library: libhal-arm-mcu
       repo: libhal/libhal-arm-mcu
+      dir: demos
       compiler_profile: hal/tc/arm-gcc-12.3
       platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
   libhal-actuator-demos-lpc4078:
-    uses: ./.github/workflows/demo_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
-      library: libhal-actuator
       repo: libhal/libhal-actuator
+      dir: demos
       compiler_profile: v1/arm-gcc-12.3
       platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
   libhal-actuator-demos-lpc4074:
-    uses: ./.github/workflows/demo_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
-      library: libhal-actuator
       repo: libhal/libhal-actuator
+      dir: demos
       compiler_profile: v1/arm-gcc-12.3
       platform_profile: hal/mcu/lpc4074
     secrets: inherit

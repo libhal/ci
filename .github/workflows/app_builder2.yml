@@ -34,8 +34,8 @@ on:
         required: true
       config2_version:
         type: string
-        required: true
-      conan_build_dir:
+        default: main
+      dir: # Directory where the conan package exists
         type: string
         default: "."
 
@@ -73,4 +73,4 @@ jobs:
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 🏗️ Build Application for ${{ inputs.profile }}
-        run: conan build ${{ inputs.conan_build_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
+        run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
