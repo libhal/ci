@@ -99,13 +99,13 @@ jobs:
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing:cmake
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=MinSizeRel -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing:cmake
+        run: conan create ${{ inputs.dir }} -s:h build_type=MinSizeRel -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=Release  -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing:cmake
+        run: conan create ${{ inputs.dir }} -s:h build_type=Release  -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing
 
       - name: 📡 Sign into Conan Package Repository
         if: ${{ inputs.version != 'latest' && inputs.remote_url != '' && env.CONAN_REMOTE_USER != '' && env.CONAN_REMOTE_PASSWORD != '' }}
