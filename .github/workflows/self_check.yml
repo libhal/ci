@@ -24,21 +24,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  library_check_libhal_v4:
+  # library_check_libhal_v4:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal
+  #     repo: libhal/libhal
+  #     dir: v4
+  #   secrets: inherit
+
+  library_check_libhal_v5:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal
       repo: libhal/libhal
-      dir: v4
-    secrets: inherit
-
-  library_check_libhal-util:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-util
-      repo: libhal/libhal-util
       dir: v5
     secrets: inherit
+
+  # library_check_libhal-util:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal-util
+  #     repo: libhal/libhal-util
+  #     dir: v5
+  #   secrets: inherit
 
   # libhal-actuator:
   #   uses: ./.github/workflows/library_check.yml
@@ -122,13 +130,13 @@ jobs:
   #     dir: v4
   #   secrets: inherit
 
-  # package-libhal_v5:
-  #   uses: ./.github/workflows/package_and_upload_all.yml
-  #   with:
-  #     library: libhal
-  #     repo: libhal/libhal
-  #     dir: v5
-  #   secrets: inherit
+  package-libhal_v5:
+    uses: ./.github/workflows/package_and_upload_all.yml
+    with:
+      library: libhal
+      repo: libhal/libhal
+      dir: v5
+    secrets: inherit
 
   # package-libhal-util:
   #   uses: ./.github/workflows/package_and_upload_all.yml

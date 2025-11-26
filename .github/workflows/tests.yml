@@ -61,9 +61,11 @@ jobs:
           - runner_os: macos-latest
             arch: armv8
             os: Macos
-          - runner_os: windows-latest
-            arch: x86_64
-            os: Windows
+
+          # # This OS is currently
+          # - runner_os: windows-latest
+          #   arch: x86_64
+          #   os: Windows
 
     runs-on: ${{ matrix.runner_os }}
     env:

@@ -34,7 +34,7 @@ on:
         default: "40 80"
       source_dir:
         type: string
-        default: "src/"
+        default: src
       repo:
         type: string
         default: ${{ github.repository }}
