@@ -12,62 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 🧪 tests
+name: 🏗️ App Builder 2
 
 on:
   workflow_call:
     inputs:
-      library:
+      repo:
         type: string
-        required: true
+        default: ${{ github.repository }}
       version:
         type: string
         default: ""
-      coverage:
-        type: boolean
-        required: true
-      fail_on_coverage:
-        type: boolean
-        required: true
-      coverage_threshold:
-        type: string
-        required: true
-      repo:
-        type: string
-        required: true
       conan_version:
+        type: string
+        default: "2.16.1"
+      compiler_profile:
+        type: string
+        required: true
+      platform_profile:
         type: string
         required: true
       config2_version:
         type: string
-        default: main
-      # Directory where the conan package exists
-      dir:
+        required: true
+      conan_build_dir:
         type: string
         default: "."
-      # Version of LLVM to install via homebrew
-      llvm:
-        type: string
-        default: "17"
-jobs:
-  run_tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner_os: ubuntu-24.04
-            arch: x86_64
-            os: Linux
-          - runner_os: macos-latest
-            arch: armv8
-            os: Macos
-          - runner_os: windows-latest
-            arch: x86_64
-            os: Windows
 
-    runs-on: ${{ matrix.runner_os }}
-    env:
-      VERBOSE: 1
+jobs:
+  build:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version != '' }}
@@ -85,18 +59,18 @@ jobs:
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
 
-      - name: 🔍 conan version
-        run: conan --version
-
-      - name: 📡 Create and setup default profile
-        run: conan profile detect --force
-
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
           https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
 
-      - name: 📡 Install libhal settings_user.yml
+      - name: 📡 Create and setup default profile
+        run: conan profile detect --force
+
+      - name: 👁️‍🗨️ Show conan profile
+        run: conan profile show
+
+      - name: Install libhal conan config
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
-      - name: 🔬 Create & Run Unit Tests
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm
+      - name: 🏗️ Build Application for ${{ inputs.profile }}
+        run: conan build ${{ inputs.conan_build_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
