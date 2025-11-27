@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 📦🚀 Package & Deploy
+name: 📦🚀 Package & Deploy (DEPRECATED use package_and_upload.yml)
 
 on:
   workflow_call:

@@ -45,7 +45,7 @@ on:
       dir:
         type: string
         default: "."
-      # Version of LLVM to install via homebrew
+      # (DEPRECATED) Version of LLVM to install via homebrew, no longer used
       llvm:
         type: string
         default: "17"

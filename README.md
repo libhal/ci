@@ -13,46 +13,49 @@ To test work flows locally on your machine, use the
 
 ## Workflows
 
-The repository contains the following workflows:
+The repository contains the following callable workflows:
 
-1. `demo_builder.yml`: Builds a demo profile for a specified
-   library. It installs necessary dependencies, sets up Conan profiles, and
-   builds the package and demos for the specified profile.
+### Current Workflows
 
-2. `deploy_all.yml`: Builds packages for every device and
-   architecture that libhal supports. It uses the `deploy.yml` workflow for each device and architecture.
+1. `api_docs_gen.yml`: Generates API documentation using Doxygen and deploys it
+   to the API documentation repository. This workflow is triggered on releases.
 
-3. `deploy.yml`: Used by the `deploy_all.yml` workflow to build packages for a
-   specific device and architecture.
+2. `app_builder2.yml`: Builds applications for a specified platform. Replaces
+   the deprecated `app_builder.yml` and `demo_builder.yml` workflows with a
+   unified approach using conan-config2.
 
-4. `deploy_linux.yml`: A workflow used by `deploy_all.yml` to deploy
-   specifically to linux using the `conan-config/linux/` profile.
+3. `docs.yml`: Validates public API documentation using Doxygen. Checks that
+   all public APIs are properly documented and generates warnings for missing
+   documentation.
 
-5. `docs.yml`: Used to generate documentation for the library. It uses Doxygen
-   to generate the documentation and then uploads the generated documentation
-   as an artifact.
+4. `library_check.yml`: Runs a complete suite of checks on a library including
+   tests, linting, and documentation validation. This is the primary CI
+   workflow for library development.
 
-6. `library_check.yml`: Used to build and test a library. It installs
-   necessary dependencies, sets up Conan profiles, builds the library, runs
-   tests, and optionally generates code coverage reports.
+5. `lint.yml`: Checks code formatting using clang-format. Validates that code
+   follows the libhal style guide for `include/`, `src/`, `demos/`, and
+   `tests/` directories.
 
-7. `lint.yml`: Used to lint the code in the repository. It uses
-   clang-format to format the code and clang-tidy to check the code for issues.
+6. `package_and_upload.yml`: Creates Conan packages for a specific platform and
+   optionally uploads them to a Conan repository. Replaces the deprecated
+   `deploy.yml`, `deploy_linux.yml`, and `deploy_mac.yml` workflows.
 
-8. `platform_deploy.yml`: Used to build packages for a specific
-   platform. It installs necessary dependencies, sets up Conan profiles, and
-   builds the package for the specified platform.
+7. `package_and_upload_all.yml`: Creates Conan packages for all supported
+   platforms and architectures that libhal supports. Replaces the deprecated
+   `deploy_all.yml` workflow.
 
-9. `self_check.yml`: Used to run a series of checks on various libraries to
-   determine if all of the workflows still work as intended.
+8. `tests.yml`: Runs unit tests for a library on multiple platforms (Linux,
+   macOS, and optionally Windows) with optional code coverage reporting.
 
-10. `take.yml`: Used to assign issues to contributors. When a
-    contributor comments on an issue with the word "take", the workflow assigns
-    the issue to the contributor.
+### Internal Workflows
 
-11. `tests.yml`: Used to run tests on the library. It installs
-    necessary dependencies, sets up Conan profiles, builds the library, runs
-    tests, and optionally generates code coverage reports.
+These workflows are used internally by the libhal/ci repository and are not
+typically called directly by other repositories:
+
+- `rebase.yml`: Automatically rebases the 5.x.y branch onto main
+- `self_check.yml`: Runs checks on various libhal libraries to ensure workflows
+  are functioning correctly
+- `take.yml`: Allows contributors to self-assign issues by commenting `.take`
 
 ## Usage
 
@@ -187,103 +190,287 @@ follow the same pattern as the `libhal-esp8266` library. Just replace
 
 ## Detailed Workflow Descriptions
 
+### api_docs_gen.yml
+
+Generates and deploys API documentation for libhal libraries.
+
+**Inputs:**
+
+- None (uses repository name and version from GitHub context)
+
+**Usage:**
+
+```yaml
+jobs:
+  api_docs:
+    uses: libhal/ci/.github/workflows/api_docs_gen.yml@5.x.y
+    secrets: inherit
+```
+
+### app_builder2.yml
+
+Builds applications/demos for embedded platforms using the new conan-config2 system.
+
+**Inputs:**
+
+- `repo` (string): GitHub repository to build from. Default: current repository
+- `version` (string): Version/tag to checkout. Default: "" (uses current branch)
+- `conan_version` (string): Conan version to use. Default: "2.16.1"
+- `compiler_profile` (string, **required**): Compiler profile path (e.g., "hal/tc/arm-gcc-12.3")
+- `platform_profile` (string, **required**): Platform profile path (e.g., "hal/mcu/lpc4078")
+- `config2_version` (string): Branch/tag of conan-config2 to use. Default: "main"
+- `dir` (string): Directory containing the application. Default: "."
+
+**Usage:**
+
+```yaml
+jobs:
+  build_demo:
+    uses: libhal/ci/.github/workflows/app_builder2.yml@5.x.y
+    with:
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/mcu/lpc4078
+    secrets: inherit
+```
+
+### docs.yml
+
+Validates that all public APIs are properly documented using Doxygen.
+
+**Inputs:**
+
+- `library` (string, **required**): Name of the library
+- `source_dir` (string, **required**): Source directory to document
+- `repo` (string, **required**): GitHub repository location
+- `version` (string): Version/tag to checkout. Default: "" (uses current branch)
+- `dir` (string, **required**): Directory containing the Conan package
+
+**Usage:**
+
+```yaml
+jobs:
+  docs:
+    uses: libhal/ci/.github/workflows/docs.yml@5.x.y
+    with:
+      library: libhal-actuator
+      source_dir: src
+      repo: libhal/libhal-actuator
+      dir: .
+    secrets: inherit
+```
+
 ### library_check.yml
 
-The `library_check.yml` workflow is used to build and test a library. It
-installs necessary dependencies, sets up Conan profiles, builds the library, runs tests, and optionally generates code coverage reports.
+Comprehensive CI workflow that runs tests, linting, and documentation checks.
 
-Inputs:
+**Inputs:**
 
-- `library`: The name of the library to build and test. Default is the name of
-  the repository where the workflow is running.
-- `version`: library version number which should correspond to a tag number in
-  the repo. Do not supply this field if you want to perform a dry-run and not deploy to the server.
-- `coverage`: A boolean value indicating whether to generate code coverage
-  reports. Default is true.
-- `fail_on_coverage`: A boolean value indicating whether the workflow should
-  fail if the code coverage does not meet the specified threshold. Default is
-  false.
-- `coverage_threshold`: A string specifying the minimum and maximum code
-  coverage thresholds. The workflow will generate a warning if the code coverage
-  is below the minimum threshold and an error if it is above the maximum
-  threshold. Default is "40 80".
-- `source_dir`: The directory where the source code for the library is located.
-  Default is "include/".
-- `repo`: The GitHub repository where the library is located. Default is the
-  repository where the workflow is running.
-- `conan_version`: The version of Conan to use for building the library. Default
-  is "2.2.2".
+- `library` (string): Library name. Default: repository name
+- `version` (string): Version/tag to checkout. Default: "" (dry-run, no deployment)
+- `coverage` (boolean): Enable code coverage reporting. Default: true
+- `fail_on_coverage` (boolean): Fail if coverage threshold not met. Default: false
+- `coverage_threshold` (string): Min/max coverage thresholds. Default: "40 80"
+- `source_dir` (string): Source code directory. Default: "src"
+- `repo` (string): GitHub repository. Default: current repository
+- `conan_version` (string): Conan version. Default: "2.22.2"
+- `dir` (string): Conan package directory. Default: "."
 
-This workflow is designed to be used in any GitHub Actions workflow by
-referencing it with the `uses` keyword and providing the necessary inputs. If an
-input is not provided, the workflow will use the default value.
+**Usage:**
 
-### deploy_all.yml
+```yaml
+jobs:
+  ci:
+    uses: libhal/ci/.github/workflows/library_check.yml@5.x.y
+    with:
+      coverage: true
+      fail_on_coverage: false
+      coverage_threshold: "40 80"
+    secrets: inherit
+```
 
-This profile is the correct profile to be used for device libraries, or
-libraries that are agnostic to the CPU it is running on.
+### lint.yml
 
-The `deploy.yml` workflow is used to build packages for every device and
-architecture that libhal supports. It uses the `deploy.yml` and
-`deploy_linux.yml` workflow for each device and architecture.
+Validates code formatting using clang-format.
 
-Inputs:
+**Inputs:**
 
-- `library`: The name of the library to build packages for. Default is the name
-  of the repository where the workflow is running.
-- `version`: library version number which should correspond to a tag number in
-  the repo. Do not supply this field if you want to perform a dry-run and not deploy to the server.
-- `repo`: The GitHub repository where the library is located. Default is the
-  repository where the workflow is running.
-- `conan_version`: The version of Conan to use for building the library. Default
-  is "2.2.2".
+- `library` (string, **required**): Library name
+- `source_dir` (string, **required**): Source directory to lint
+- `repo` (string, **required**): GitHub repository
+- `version` (string): Version/tag to checkout. Default: ""
+- `dir` (string): Package directory. Default: "."
 
-This workflow creates a job for each supported device and architecture. Each job
-uses the `deploy.yml` workflow to build a package for the specified device
-and architecture.
+**Usage:**
 
-This workflow is designed to be used in any GitHub Actions workflow by
-referencing it with the `uses` keyword and providing the necessary inputs. If an
-input is not provided, the workflow will use the default value.
+```yaml
+jobs:
+  lint:
+    uses: libhal/ci/.github/workflows/lint.yml@5.x.y
+    with:
+      library: libhal-util
+      source_dir: src
+      repo: libhal/libhal-util
+    secrets: inherit
+```
 
-### deploy.yml
+### package_and_upload.yml
 
-> [!NOTE]
-> Docs not written yet.
+Creates Conan packages for a specific platform/architecture and uploads to a repository.
 
-### demo_builder.yml
+**Inputs:**
 
-The `demo_builder.yml` workflow builds a demo profile for a specified library.
-It installs necessary dependencies, sets up Conan profiles, and builds the
-package and demos for the specified profile.
+- `library` (string): Library name. Default: repository name
+- `repo` (string): GitHub repository. Default: current repository
+- `conan_version` (string): Conan version. Default: "2.18.0"
+- `config2_version` (string): conan-config2 branch/tag. Default: "main"
+- `version` (string): Package version. Default: "latest" (no upload)
+- `runner_os` (string, **required**): GitHub runner OS (e.g., "ubuntu-24.04", "macos-latest")
+- `arch` (string, **required**): Target architecture (e.g., "x86_64", "cortex-m4f")
+- `os` (string, **required**): Target OS (e.g., "Linux", "baremetal")
+- `compiler_profile` (string, **required**): Compiler profile path
+- `dir` (string): Conan package directory. Default: "."
+- `remote_url` (string): Conan repository URL. Default: ""
 
-Inputs:
+**Secrets:**
 
-- `library`: The name of the library to build a demo for. Default is the name of
-  the repository where the workflow is running.
-- `repo`: The GitHub repository where the library is located. Default is the
-  repository where the workflow is running.
-- `conan_version`: The version of Conan to use for building the library. Default
-  is "2.2.2".
-- `profile`: The profile to use for building the demo. This input is required.
-- `processor_profile`: The URL of the processor profile to use for building the
-  demo. Default is an empty string.
-- `platform_profile`: The URL of the platform profile to use for building the
-  demo. Default is an empty string.
+- `conan_remote_user`: Username for Conan repository
+- `conan_remote_password`: Password for Conan repository
 
-This workflow runs on an Ubuntu 22.04 runner. It checks out the code for the
-library, installs Conan, adds the `libhal` Conan repository to the
-Conan remotes, creates and sets up the default Conan profile, signs into JFrog
-Artifactory if the workflow is running on the `main` branch, installs the libhal
-settings_user.yml file, installs host OS profiles, installs processor profiles
-if a `processor_profile` input is provided, installs platform profiles if a
-`platform_profile` input is provided, builds a package for the specified profile
-with the `MinSizeRel` build type, and builds demos for the specified profile
-with the `MinSizeRel` build type.
+**Usage:**
+```yaml
+jobs:
+  deploy:
+    uses: libhal/ci/.github/workflows/package_and_upload.yml@5.x.y
+    with:
+      runner_os: ubuntu-24.04
+      arch: cortex-m4f
+      os: baremetal
+      compiler_profile: hal/tc/arm-gcc
+      version: "1.0.0"
+      remote_url: https://example.jfrog.io/artifactory/api/conan/my-repo
+    secrets:
+      conan_remote_user: ${{ secrets.CONAN_USER }}
+      conan_remote_password: ${{ secrets.CONAN_PASSWORD }}
+```
 
-This workflow is designed to be used in any GitHub Actions workflow by
-referencing it with the `uses` keyword and providing the necessary inputs. If an
-input is not provided, the workflow will use the default value.
+### package_and_upload_all.yml
+
+Creates Conan packages for all supported platforms and architectures.
+
+**Inputs:**
+
+- `library` (string): Library name. Default: repository name
+- `repo` (string): GitHub repository. Default: current repository
+- `version` (string): Package version. Default: "latest" (no upload)
+- `conan_version` (string): Conan version. Default: "2.22.2"
+- `dir` (string): Conan package directory. Default: "."
+- `remote_url` (string): Conan repository URL. Default: ""
+
+**Secrets:**
+
+- `conan_remote_user`: Username for Conan repository
+- `conan_remote_password`: Password for Conan repository
+
+Builds packages for:
+
+- Linux x86_64 (LLVM)
+- Linux armv8 (LLVM)
+- macOS armv8 (LLVM)
+- Cortex-M0+, M1, M3, M4, M4F, M7F, M7D (ARM GCC)
+- Cortex-M23, M33, M33F, M35PF, M55, M85 (ARM GCC)
+
+**Usage:**
+
+```yaml
+jobs:
+  deploy_all:
+    uses: libhal/ci/.github/workflows/package_and_upload_all.yml@5.x.y
+    with:
+      version: "1.0.0"
+      remote_url: https://example.jfrog.io/artifactory/api/conan/my-repo
+    secrets:
+      conan_remote_user: ${{ secrets.CONAN_USER }}
+      conan_remote_password: ${{ secrets.CONAN_PASSWORD }}
+```
+
+### tests.yml
+
+Runs unit tests on multiple platforms with optional coverage reporting.
+
+**Inputs:**
+
+- `library` (string, **required**): Library name
+- `version` (string): Version/tag to checkout. Default: ""
+- `coverage` (boolean, **required**): Enable code coverage
+- `fail_on_coverage` (boolean, **required**): Fail on coverage threshold
+- `coverage_threshold` (string, **required**): Coverage thresholds
+- `repo` (string, **required**): GitHub repository
+- `conan_version` (string, **required**): Conan version
+- `config2_version` (string): conan-config2 branch/tag. Default: "main"
+- `dir` (string): Package directory. Default: "."
+- `llvm` (string): **(DEPRECATED NO LONGER USED)**. Tests will use the latest
+  version of LLVM available in the libhal conan-config2 repo.
+
+Runs tests on:
+
+- Ubuntu 24.04 (x86_64, Linux)
+- macOS latest (armv8, macOS)
+
+**Usage:**
+
+```yaml
+jobs:
+  tests:
+    uses: libhal/ci/.github/workflows/tests.yml@5.x.y
+    with:
+      library: libhal-util
+      repo: libhal/libhal-util
+      coverage: true
+      fail_on_coverage: false
+      coverage_threshold: "40 80"
+      conan_version: "2.22.2"
+    secrets: inherit
+```
+
+## Deprecated Workflows
+
+The following workflows are deprecated and should not be used in new projects. They are maintained for backwards compatibility but will be removed in a future release.
+
+### app_builder.yml (DEPRECATED)
+
+**Status:** Deprecated - Use `app_builder2.yml` instead
+
+This workflow has been replaced by `app_builder2.yml` which uses the new conan-config2 system for a more streamlined configuration approach.
+
+### demo_builder.yml (DEPRECATED)
+
+**Status:** Deprecated - Use `app_builder2.yml` instead
+
+This workflow has been replaced by `app_builder2.yml`. The new workflow handles both applications and demos with a unified approach.
+
+### deploy.yml (DEPRECATED)
+
+**Status:** Deprecated - Use `package_and_upload.yml` instead
+
+This workflow has been replaced by `package_and_upload.yml` which provides better configuration options and supports custom Conan repositories.
+
+### deploy_all.yml (DEPRECATED)
+
+**Status:** Deprecated - Use `package_and_upload_all.yml` instead
+
+This workflow has been replaced by `package_and_upload_all.yml` which includes updated architecture support and uses the new conan-config2 system.
+
+### deploy_linux.yml (DEPRECATED)
+
+**Status:** Deprecated - Use `package_and_upload.yml` instead
+
+This workflow has been replaced by `package_and_upload.yml` with `runner_os: ubuntu-24.04` specified.
+
+### deploy_mac.yml (DEPRECATED)
+
+**Status:** Deprecated - Use `package_and_upload.yml` instead
+
+This workflow has been replaced by `package_and_upload.yml` with `runner_os: macos-latest` specified.
 
 ## Contributing
 
