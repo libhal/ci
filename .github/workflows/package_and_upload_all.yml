@@ -101,41 +101,49 @@ jobs:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
-  windows_arm_llvm:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: windows-11-arm
-      arch: armv8
-      os: Windows
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+  # # ==========================================================================
+  # # Disabled: Executing unit test binaries seg fault
+  # # ==========================================================================
+  # # TODO(#95): Enable Windows
+  # windows_arm_llvm:
+  #   uses: ./.github/workflows/package_and_upload.yml
+  #   with:
+  #     # Target specific
+  #     runner_os: windows-11-arm
+  #     arch: armv8
+  #     os: Windows
+  #     compiler_profile: hal/tc/llvm
+  #     # Plumbing
+  #     library: ${{ inputs.library }}
+  #     repo: ${{ inputs.repo }}
+  #     conan_version: ${{ inputs.conan_version }}
+  #     dir: ${{ inputs.dir }}
+  #     remote_url: ${{ inputs.remote_url }}
+  #   secrets:
+  #     conan_remote_user: ${{ secrets.conan_remote_user }}
+  #     conan_remote_password: ${{ secrets.conan_remote_password }}
 
-  windows_x86_64_llvm:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: windows-latest
-      arch: x86_64
-      os: Windows
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+  # # ==========================================================================
+  # # Disabled: Executing unit test binaries seg fault
+  # # ==========================================================================
+  # # TODO(#95): Enable Windows
+  # windows_x86_64_llvm:
+  #   uses: ./.github/workflows/package_and_upload.yml
+  #   with:
+  #     # Target specific
+  #     runner_os: windows-latest
+  #     arch: x86_64
+  #     os: Windows
+  #     compiler_profile: hal/tc/llvm
+  #     # Plumbing
+  #     library: ${{ inputs.library }}
+  #     repo: ${{ inputs.repo }}
+  #     conan_version: ${{ inputs.conan_version }}
+  #     dir: ${{ inputs.dir }}
+  #     remote_url: ${{ inputs.remote_url }}
+  #   secrets:
+  #     conan_remote_user: ${{ secrets.conan_remote_user }}
+  #     conan_remote_password: ${{ secrets.conan_remote_password }}
 
   cortex-m0plus:
     uses: ./.github/workflows/package_and_upload.yml

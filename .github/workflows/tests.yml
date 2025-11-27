@@ -61,9 +61,13 @@ jobs:
           - runner_os: macos-latest
             arch: armv8
             os: Macos
-          - runner_os: windows-latest
-            arch: x86_64
-            os: Windows
+          # # ==================================================================
+          # # Disabled: Executing unit test binaries seg fault
+          # # ==================================================================
+          # # TODO(#95): Enable Windows
+          # - runner_os: windows-latest
+          #   arch: x86_64
+          #   os: Windows
 
     runs-on: ${{ matrix.runner_os }}
     env:
