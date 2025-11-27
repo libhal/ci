@@ -38,11 +38,14 @@ on:
       conan_version:
         type: string
         required: true
+      config2_version:
+        type: string
+        default: main
       # Directory where the conan package exists
       dir:
         type: string
         default: "."
-      # Version of LLVM to install via homebrew
+      # (DEPRECATED) Version of LLVM to install via homebrew, no longer used
       llvm:
         type: string
         default: "17"
@@ -52,26 +55,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
-            profile_path: profiles/x86_64/linux/
+          - runner_os: ubuntu-24.04
+            arch: x86_64
+            os: Linux
+          - runner_os: macos-latest
+            arch: armv8
+            os: Macos
+          # # ==================================================================
+          # # Disabled: Executing unit test binaries seg fault
+          # # ==================================================================
+          # # TODO(#95): Enable Windows
+          # - runner_os: windows-latest
+          #   arch: x86_64
+          #   os: Windows
 
-          - os: ubuntu-24.04
-            profile_path: profiles/x86_64/linux/
-
-          - os: macos-14
-            profile_path: profiles/x86_64/mac-14/
-
-          - os: macos-15
-            profile_path: profiles/x86_64/mac-15/
-
-          ## Skip already installed "git" and "mingw", uses default python
-          ## 3.9.13
-          #
-          # - os: windows-2022
-          #   installations: choco install mingw && choco install llvm --version=17.0.6 --allow-downgrade
-          #   profile_path: profiles/x86_64/windows/
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner_os }}
+    env:
+      VERBOSE: 1
     steps:
       - uses: actions/checkout@v4.1.1
         if: ${{ inputs.version != '' }}
@@ -86,90 +86,21 @@ jobs:
           submodules: true
           repository: ${{ inputs.repo }}
 
-      - name: 📥 Install OS Specific Tools (ubuntu-22.04)
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          sudo apt remove clang-tidy
-          sudo rm -f /usr/bin/clang-tidy
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh ${{ inputs.llvm }}
-          sudo apt install libc++-${{ inputs.llvm }}-dev libc++abi-${{ inputs.llvm }}-dev
-          sudo apt-get install pipx
-          pipx ensurepath
-          sudo apt install clang-tidy-${{ inputs.llvm }}
-
-      - name: 📥 Install OS Specific Tools (ubuntu-24.04)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
-        run: |
-          sudo apt remove clang-tidy
-          sudo rm -f /usr/bin/clang-tidy
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh ${{ inputs.llvm }}
-          sudo apt install libc++-${{ inputs.llvm }}-dev libc++abi-${{ inputs.llvm }}-dev
-          sudo apt-get install pipx
-          pipx ensurepath
-          sudo apt install clang-tidy-${{ inputs.llvm }}
-
-      - name: 📥 Install OS Specific Tools (macos-14)
-        if: ${{ matrix.os == 'macos-14' }}
-        run: |
-          brew install llvm@${{ inputs.llvm }}
-          ln -s $(brew --prefix llvm@${{ inputs.llvm }})/bin/clang-tidy /usr/local/bin/
-          brew install pipx
-          pipx ensurepath
-
-      - name: 📥 Install OS Specific Tools (macos-15)
-        if: ${{ matrix.os == 'macos-15' }}
-        run: |
-          brew install llvm@${{ inputs.llvm }}
-          ln -s $(brew --prefix llvm@${{ inputs.llvm }})/bin/clang-tidy /usr/local/bin/
-          brew install pipx
-          pipx ensurepath
-
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
 
       - name: 🔍 conan version
         run: conan --version
 
-      - name: 🔍 cmake version
-        run: cmake --version
-
-      - name: 🔍 clang++ version
-        run: clang++-${{ inputs.llvm }} --version || clang++ --version
-
-      - name: 🔍 /usr/bin version
-        run: ls /usr/bin/clang*
-
-      - name: 🔍 clang-tidy version
-        run: clang-tidy-${{ inputs.llvm }} --version || clang-tidy --version
+      - name: 📡 Create and setup default profile
+        run: conan profile detect --force
 
       - name: 📡 Add `libhal` repo to conan remotes
         run: conan remote add libhal
           https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
 
-      - name: 📡 Create and setup default profile
-        run: conan profile detect --force
+      - name: 📡 Install libhal settings_user.yml
+        run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
-      - name: 👁️‍🗨️ Show conan profile (original)
-        run: conan profile show
-
-      - name: 📡 Install default profiles
-        run: conan config install -sf ${{ matrix.profile_path }} -tf profiles https://github.com/libhal/conan-config.git
-
-      - name: 👁️‍🗨️ Show conan profile (new)
-        if: ${{ runner.os != 'Windows' }}
-        run: cat ~/.conan2/profiles/default
-
-      - name: 👁️‍🗨️ Show conan profile (new)
-        run: conan profile show
-
-      - name: 🔬 Create & Run Unit Tests (Windows-MinSizeRel)
-        if: ${{ runner.os == 'Windows' }}
-        run: $env:VERBOSE = 1 ; conan create ${{ inputs.dir }} --build=missing -s build_type=MinSizeRel --version='latest'
-
-      - name: 🔬 Create & Run Unit Tests (Everything_Else-MinSizeRel)
-        if: ${{ runner.os != 'Windows' }}
-        run: VERBOSE=1 conan create ${{ inputs.dir }} --build=missing -s build_type=MinSizeRel --version="latest"
+      - name: 🔬 Create & Run Unit Tests
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm

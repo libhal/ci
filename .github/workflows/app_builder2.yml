@@ -12,14 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 🏗️ Demo Builder (DEPRECATED use app_builder2.yml)
+name: 🏗️ App Builder 2
 
 on:
   workflow_call:
     inputs:
-      library: # this field is ignored but kept here for backwards compatible
-        type: string
-        default: ${{ github.event.repository.name }}
       repo:
         type: string
         default: ${{ github.repository }}
@@ -29,26 +26,16 @@ on:
       conan_version:
         type: string
         default: "2.16.1"
-      compiler_profile_url:
-        type: string
-        required: true
       compiler_profile:
-        type: string
-        required: true
-      compiler_profile_branch:
-        type: string
-        default: "main"
-      platform_profile_url:
         type: string
         required: true
       platform_profile:
         type: string
         required: true
-      platform_profile_branch:
+      config2_version:
         type: string
-        default: "main"
-      # Directory where the conan package exists
-      dir:
+        default: main
+      dir: # Directory where the conan package exists
         type: string
         default: "."
 
@@ -82,14 +69,8 @@ jobs:
       - name: 👁️‍🗨️ Show conan profile
         run: conan profile show
 
-      - name: Install libhal settings_user.yml
-        run: conan config install -sf profiles/baremetal/v2 https://github.com/libhal/conan-config.git
+      - name: Install libhal conan config
+        run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
-      - name: Install compiler profiles
-        run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.compiler_profile_branch }} --single-branch" ${{ inputs.compiler_profile_url }}
-
-      - name: Install platform profiles
-        run: conan config install -tf profiles -sf conan/profiles --args "-b ${{ inputs.platform_profile_branch }} --single-branch" ${{ inputs.platform_profile_url }}
-
-      - name: 🏗️ Build demos for ${{ inputs.profile }}
-        run: conan build ${{ inputs.dir }}/demos -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
+      - name: 🏗️ Build Application for ${{ inputs.profile }}
+        run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}

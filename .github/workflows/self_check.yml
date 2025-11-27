@@ -24,25 +24,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  libhal:
+  library_check_libhal_v4:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal
       repo: libhal/libhal
+      dir: v4
     secrets: inherit
 
-  libhal-arm-mcu:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-    secrets: inherit
-
-  libhal-util:
+  library_check_libhal-util:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-util
       repo: libhal/libhal-util
+      dir: v5
     secrets: inherit
 
   libhal-actuator:
@@ -59,32 +54,11 @@ jobs:
       repo: libhal/libhal-sensor
     secrets: inherit
 
-  libhal-display:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-display
-      repo: libhal/libhal-display
-    secrets: inherit
-
   libhal-expander:
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-expander
       repo: libhal/libhal-expander
-    secrets: inherit
-
-  libhal-storage:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-storage
-      repo: libhal/libhal-storage
-    secrets: inherit
-
-  libhal-input:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-input
-      repo: libhal/libhal-input
     secrets: inherit
 
   libhal-micromod-lint:
@@ -105,134 +79,81 @@ jobs:
       repo: libhal/libhal-micromod
     secrets: inherit
 
-  libhal-iot:
-    uses: ./.github/workflows/library_check.yml
+  package-strong_ptr:
+    uses: ./.github/workflows/package_and_upload_all.yml
     with:
-      library: libhal-iot
-      repo: libhal/libhal-iot
+      library: strong_ptr
+      repo: libhal/strong_ptr
     secrets: inherit
 
-  deploy-libhal:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal
-      repo: libhal/libhal
-      arch: x86_64
-      os: Linux
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: ""
-    secrets: inherit
-
-  libhal-arm-mcu-deploy-cortex-m4f:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-      arch: cortex-m4f
-      os: baremetal
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: arm-gnu-toolchain
-    secrets: inherit
-
-  libhal-arm-mcu-deploy-cortex-m3:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-      arch: cortex-m3
-      os: baremetal
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: arm-gnu-toolchain
-    secrets: inherit
-
-  libhal-arm-mcu-deploy-cortex-m0plus:
-    uses: ./.github/workflows/deploy.yml
-    with:
-      library: libhal-arm-mcu
-      repo: libhal/libhal-arm-mcu
-      arch: cortex-m0plus
-      os: baremetal
-      compiler: gcc
-      compiler_version: 12.3
-      compiler_package: arm-gnu-toolchain
-    secrets: inherit
-
-  libhal-deploy-linux:
-    uses: ./.github/workflows/deploy_linux.yml
+  package-libhal_v4:
+    uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal
       repo: libhal/libhal
+      dir: v4
     secrets: inherit
 
-  libhal-util-package:
-    uses: ./.github/workflows/deploy_all.yml
+  package-libhal-util:
+    uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal-util
       repo: libhal/libhal-util
+      dir: v5
     secrets: inherit
 
+  # TODO(#95): Enable Windows
+  # TODO(libhal/async_context#17): Add async-context
+  # TODO(libhal/libhal#178): Add libhal v5
+  # TODO(libhal/libhal-util#87): Add libhal-util v6
+
   libhal-arm-mcu-lpc4078-demos:
-    uses: ./.github/workflows/demo_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
-      library: libhal-arm-mcu
       repo: libhal/libhal-arm-mcu
-      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
-      compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-arm-mcu.git
-      platform_profile: v1/lpc4078
+      dir: demos
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
   libhal-actuator-demos-lpc4078:
-    uses: ./.github/workflows/demo_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
-      library: libhal-actuator
       repo: libhal/libhal-actuator
-      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
-      compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-arm-mcu.git
-      platform_profile: v1/lpc4078
+      dir: demos
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
   libhal-actuator-demos-lpc4074:
-    uses: ./.github/workflows/demo_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
-      library: libhal-actuator
       repo: libhal/libhal-actuator
-      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
-      compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-arm-mcu.git
-      platform_profile: v1/lpc4074
+      dir: demos
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/mcu/lpc4074
     secrets: inherit
 
   libhal-starter-app-lpc4078:
-    uses: ./.github/workflows/app_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-starter
-      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
-      compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-arm-mcu.git
-      platform_profile: v1/lpc4078
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
   libhal-starter-app-stm32f103c8:
-    uses: ./.github/workflows/app_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-starter
-      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
-      compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-arm-mcu.git
-      platform_profile: v1/stm32f103c8
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/mcu/stm32f103c8
     secrets: inherit
 
   libhal-starter-app-mod-stmt32f1-v4:
-    uses: ./.github/workflows/app_builder.yml
+    uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-starter
-      compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
-      compiler_profile: v1/arm-gcc-12.3
-      platform_profile_url: https://github.com/libhal/libhal-micromod.git
-      platform_profile: v1/mod-stm32f1-v4
+      compiler_profile: hal/tc/arm-gcc-12.3
+      platform_profile: hal/bsp/mod-stm32f1-v4
     secrets: inherit

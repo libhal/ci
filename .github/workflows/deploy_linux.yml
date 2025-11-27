@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 🐧 Deploy Linux
+name: 🐧 Deploy Linux (DEPRECATED use package_and_upload.yml)
 
 on:
   workflow_call:

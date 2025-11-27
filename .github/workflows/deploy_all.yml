@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Deploy ALL
+name: Deploy ALL (DEPRECATED use package_and_upload_all.yml)
 
 # Builds packages for every device and architecture libhal supports
 
