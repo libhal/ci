@@ -95,6 +95,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -157,6 +158,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -175,6 +177,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -193,6 +196,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -211,6 +215,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -229,6 +234,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -247,6 +253,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -265,6 +272,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -283,6 +291,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -301,6 +310,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -319,6 +329,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -337,6 +348,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -355,6 +367,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
@@ -373,6 +386,7 @@ jobs:
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
       conan_version: ${{ inputs.conan_version }}
+      version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
     secrets:
