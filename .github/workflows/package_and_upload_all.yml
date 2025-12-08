@@ -153,7 +153,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m0plus
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -172,7 +172,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m1
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -191,7 +191,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m3
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -210,7 +210,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m4
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -229,7 +229,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m4f
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -248,7 +248,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m7f
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -267,7 +267,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m7d
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -286,7 +286,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m23
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -305,7 +305,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m33
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -324,7 +324,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m33f
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -343,7 +343,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m35pf
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -362,7 +362,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m55
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -381,7 +381,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: cortex-m85
       os: baremetal
-      compiler_profile: hal/tc/arm-gcc
+      compiler_profile: hal/tc/llvm
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
