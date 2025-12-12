@@ -37,6 +37,9 @@ on:
       remote_url:
         type: string
         default: ""
+      modules_support_needed:
+        type: boolean
+        default: False
 
     secrets:
       conan_remote_password:
@@ -102,293 +105,113 @@ jobs:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
-  # # ==========================================================================
-  # # Disabled: Executing unit test binaries seg fault
-  # # ==========================================================================
-  # # TODO(#95): Enable Windows
-  # windows_arm_llvm:
-  #   uses: ./.github/workflows/package_and_upload.yml
-  #   with:
-  #     # Target specific
-  #     runner_os: windows-11-arm
-  #     arch: armv8
-  #     os: Windows
-  #     compiler_profile: hal/tc/llvm
-  #     # Plumbing
-  #     library: ${{ inputs.library }}
-  #     repo: ${{ inputs.repo }}
-  #     conan_version: ${{ inputs.conan_version }}
-  #     dir: ${{ inputs.dir }}
-  #     remote_url: ${{ inputs.remote_url }}
-  #   secrets:
-  #     conan_remote_user: ${{ secrets.conan_remote_user }}
-  #     conan_remote_password: ${{ secrets.conan_remote_password }}
+  # ================ ARM CORTEX LLVM ================
 
-  # # ==========================================================================
-  # # Disabled: Executing unit test binaries seg fault
-  # # ==========================================================================
-  # # TODO(#95): Enable Windows
-  # windows_x86_64_llvm:
-  #   uses: ./.github/workflows/package_and_upload.yml
-  #   with:
-  #     # Target specific
-  #     runner_os: windows-latest
-  #     arch: x86_64
-  #     os: Windows
-  #     compiler_profile: hal/tc/llvm
-  #     # Plumbing
-  #     library: ${{ inputs.library }}
-  #     repo: ${{ inputs.repo }}
-  #     conan_version: ${{ inputs.conan_version }}
-  #     dir: ${{ inputs.dir }}
-  #     remote_url: ${{ inputs.remote_url }}
-  #   secrets:
-  #     conan_remote_user: ${{ secrets.conan_remote_user }}
-  #     conan_remote_password: ${{ secrets.conan_remote_password }}
+  cortex-m_llvm:
+    runs-on: ubuntu-latest
+    env:
+      VERBOSE: 1
+      CONAN_REMOTE_USER: ${{ secrets.conan_remote_user }}
+      CONAN_REMOTE_PASSWORD: ${{ secrets.conan_remote_password }}
+    steps:
+      - name: 📥 Checkout target repository
+        uses: actions/checkout@v4.1.1
+        if: ${{ inputs.version != 'latest' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.version }}
+          path: target-repo
 
-  cortex-m0plus:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m0plus
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📥 Checkout target repository (latest)
+        uses: actions/checkout@v4.1.1
+        if: ${{ inputs.version == 'latest' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          path: target-repo
 
-  cortex-m1:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m1
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📥 Checkout CI repository for scripts
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: libhal/ci
+          ref: ${{ github.workflow_sha }}
+          path: ci-repo
 
-  cortex-m3:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m3
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📦 Build packages for all Cortex-M architectures
+        working-directory: target-repo
+        run: |
+          bash ../ci-repo/scripts/baremetal_package.sh \
+            --dir ${{ inputs.dir }} \
+            --version ${{ inputs.version }} \
+            --compiler-profile hal/tc/llvm \
+            --conan-version ${{ inputs.conan_version }} \
+            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
 
-  cortex-m4:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m4
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📡 Add conan user remote-package-repo
+        if: ${{ inputs.remote_url != '' }}
+        run: conan remote add --force remote-package-repo ${{ inputs.remote_url }}
 
-  cortex-m4f:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m4f
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📡 Sign into Conan Package Repository
+        if: ${{ inputs.version != 'latest' && inputs.remote_url != '' && env.CONAN_REMOTE_USER != '' && env.CONAN_REMOTE_PASSWORD != '' }}
+        run: conan remote login -p ${{ secrets.conan_remote_password }} remote-package-repo ${{ secrets.conan_remote_user }}
 
-  cortex-m7f:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m7f
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 🆙 Upload package version ${{ inputs.version }} to conan repo
+        if: ${{ inputs.version != 'latest' && inputs.remote_url != '' }}
+        run: conan upload "${{ inputs.library }}/${{ inputs.version }}" --confirm -r=remote-package-repo
 
-  cortex-m7d:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m7d
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+  # ================ ARM CORTEX GCC ================
 
-  cortex-m23:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m23
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+  cortex-m_gcc:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.modules_support_needed == false }}
+    env:
+      VERBOSE: 1
+      CONAN_REMOTE_USER: ${{ secrets.conan_remote_user }}
+      CONAN_REMOTE_PASSWORD: ${{ secrets.conan_remote_password }}
+    steps:
+      - name: 📥 Checkout target repository
+        uses: actions/checkout@v4.1.1
+        if: ${{ inputs.version != 'latest' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.version }}
+          path: target-repo
 
-  cortex-m33:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m33
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📥 Checkout target repository (latest)
+        uses: actions/checkout@v4.1.1
+        if: ${{ inputs.version == 'latest' }}
+        with:
+          submodules: true
+          repository: ${{ inputs.repo }}
+          path: target-repo
 
-  cortex-m33f:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m33f
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📥 Checkout CI repository for scripts
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: libhal/ci
+          ref: ${{ github.workflow_sha }}
+          path: ci-repo
 
-  cortex-m35pf:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m35pf
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📦 Build packages for all Cortex-M architectures
+        working-directory: target-repo
+        run: |
+          bash ../ci-repo/scripts/baremetal_package.sh \
+            --dir ${{ inputs.dir }} \
+            --version ${{ inputs.version }} \
+            --compiler-profile hal/tc/arm-gcc \
+            --conan-version ${{ inputs.conan_version }} \
+            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
 
-  cortex-m55:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m55
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📡 Add conan user remote-package-repo
+        if: ${{ inputs.remote_url != '' }}
+        run: conan remote add --force remote-package-repo ${{ inputs.remote_url }}
 
-  cortex-m85:
-    uses: ./.github/workflows/package_and_upload.yml
-    with:
-      # Target specific
-      runner_os: ubuntu-24.04
-      arch: cortex-m85
-      os: baremetal
-      compiler_profile: hal/tc/llvm
-      # Plumbing
-      library: ${{ inputs.library }}
-      repo: ${{ inputs.repo }}
-      conan_version: ${{ inputs.conan_version }}
-      version: ${{ inputs.version }}
-      dir: ${{ inputs.dir }}
-      remote_url: ${{ inputs.remote_url }}
-    secrets:
-      conan_remote_user: ${{ secrets.conan_remote_user }}
-      conan_remote_password: ${{ secrets.conan_remote_password }}
+      - name: 📡 Sign into Conan Package Repository
+        if: ${{ inputs.version != 'latest' && inputs.remote_url != '' && env.CONAN_REMOTE_USER != '' && env.CONAN_REMOTE_PASSWORD != '' }}
+        run: conan remote login -p ${{ secrets.conan_remote_password }} remote-package-repo ${{ secrets.conan_remote_user }}
+
+      - name: 🆙 Upload package version ${{ inputs.version }} to conan repo
+        if: ${{ inputs.version != 'latest' && inputs.remote_url != '' }}
+        run: conan upload "${{ inputs.library }}/${{ inputs.version }}" --confirm -r=remote-package-repo
