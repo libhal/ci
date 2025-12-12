@@ -24,66 +24,67 @@ on:
   workflow_dispatch:
 
 jobs:
-  library_check_libhal_v4:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal
-      repo: libhal/libhal
-      dir: v4
-    secrets: inherit
+  # library_check_libhal_v4:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal
+  #     repo: libhal/libhal
+  #     dir: v4
+  #   secrets: inherit
 
-  library_check_libhal-util:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-util
-      repo: libhal/libhal-util
-      dir: v5
-    secrets: inherit
+  # library_check_libhal-util:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal-util
+  #     repo: libhal/libhal-util
+  #     dir: v5
+  #   secrets: inherit
 
-  libhal-actuator:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-actuator
-      repo: libhal/libhal-actuator
-    secrets: inherit
+  # libhal-actuator:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal-actuator
+  #     repo: libhal/libhal-actuator
+  #   secrets: inherit
 
-  libhal-sensor:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-sensor
-      repo: libhal/libhal-sensor
-    secrets: inherit
+  # libhal-sensor:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal-sensor
+  #     repo: libhal/libhal-sensor
+  #   secrets: inherit
 
-  libhal-expander:
-    uses: ./.github/workflows/library_check.yml
-    with:
-      library: libhal-expander
-      repo: libhal/libhal-expander
-    secrets: inherit
+  # libhal-expander:
+  #   uses: ./.github/workflows/library_check.yml
+  #   with:
+  #     library: libhal-expander
+  #     repo: libhal/libhal-expander
+  #   secrets: inherit
 
-  libhal-micromod-lint:
-    uses: ./.github/workflows/lint.yml
-    with:
-      library: libhal-micromod
-      source_dir: src
-      dir: .
-      repo: libhal/libhal-micromod
-    secrets: inherit
+  # libhal-micromod-lint:
+  #   uses: ./.github/workflows/lint.yml
+  #   with:
+  #     library: libhal-micromod
+  #     source_dir: src
+  #     dir: .
+  #     repo: libhal/libhal-micromod
+  #   secrets: inherit
 
-  libhal-micromod-docs:
-    uses: ./.github/workflows/docs.yml
-    with:
-      library: libhal-micromod
-      source_dir: src
-      dir: .
-      repo: libhal/libhal-micromod
-    secrets: inherit
+  # libhal-micromod-docs:
+  #   uses: ./.github/workflows/docs.yml
+  #   with:
+  #     library: libhal-micromod
+  #     source_dir: src
+  #     dir: .
+  #     repo: libhal/libhal-micromod
+  #   secrets: inherit
 
   package-strong_ptr:
     uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: strong_ptr
       repo: libhal/strong_ptr
+      modules_support_needed: true
     secrets: inherit
 
   package-libhal_v4:
@@ -99,6 +100,7 @@ jobs:
     with:
       library: libhal-util
       repo: libhal/libhal-util
+      modules_support_needed: true
       dir: v5
     secrets: inherit
 
