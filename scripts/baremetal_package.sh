@@ -9,6 +9,9 @@
 # # Just change architecture list
 # ./baremetal_package.sh --arch-list cortex-m0,cortex-m1,cortex-m3
 
+# Exit script on any error
+set -e
+
 # Default values
 DIR="."
 VERSION="latest"
