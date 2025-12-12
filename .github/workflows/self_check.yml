@@ -79,30 +79,29 @@ jobs:
   #     repo: libhal/libhal-micromod
   #   secrets: inherit
 
-  package-strong_ptr:
-    uses: ./.github/workflows/package_and_upload_all.yml
-    with:
-      library: strong_ptr
-      repo: libhal/strong_ptr
-      modules_support_needed: true
-    secrets: inherit
+  # package-strong_ptr:
+  #   uses: ./.github/workflows/package_and_upload_all.yml
+  #   with:
+  #     library: strong_ptr
+  #     repo: libhal/strong_ptr
+  #     modules_support_needed: true
+  #   secrets: inherit
 
-  package-libhal_v4:
-    uses: ./.github/workflows/package_and_upload_all.yml
-    with:
-      library: libhal
-      repo: libhal/libhal
-      dir: v4
-    secrets: inherit
+  # package-libhal_v4:
+  #   uses: ./.github/workflows/package_and_upload_all.yml
+  #   with:
+  #     library: libhal
+  #     repo: libhal/libhal
+  #     dir: v4
+  #   secrets: inherit
 
-  package-libhal-util:
-    uses: ./.github/workflows/package_and_upload_all.yml
-    with:
-      library: libhal-util
-      repo: libhal/libhal-util
-      modules_support_needed: true
-      dir: v5
-    secrets: inherit
+  # package-libhal-util:
+  #   uses: ./.github/workflows/package_and_upload_all.yml
+  #   with:
+  #     library: libhal-util
+  #     repo: libhal/libhal-util
+  #     dir: v5
+  #   secrets: inherit
 
   # TODO(#95): Enable Windows
   # TODO(libhal/async_context#17): Add async-context
@@ -114,48 +113,48 @@ jobs:
     with:
       repo: libhal/libhal-arm-mcu
       dir: demos
-      compiler_profile: hal/tc/arm-gcc-12.3
+      compiler_profile: hal/tc/arm-gcc
       platform_profile: hal/mcu/lpc4078
     secrets: inherit
 
-  libhal-actuator-demos-lpc4078:
-    uses: ./.github/workflows/app_builder2.yml
-    with:
-      repo: libhal/libhal-actuator
-      dir: demos
-      compiler_profile: hal/tc/arm-gcc-12.3
-      platform_profile: hal/mcu/lpc4078
-    secrets: inherit
+  # libhal-actuator-demos-lpc4078:
+  #   uses: ./.github/workflows/app_builder2.yml
+  #   with:
+  #     repo: libhal/libhal-actuator
+  #     dir: demos
+  #     compiler_profile: hal/tc/arm-gcc
+  #     platform_profile: hal/mcu/lpc4078
+  #   secrets: inherit
 
-  libhal-actuator-demos-lpc4074:
-    uses: ./.github/workflows/app_builder2.yml
-    with:
-      repo: libhal/libhal-actuator
-      dir: demos
-      compiler_profile: hal/tc/arm-gcc-12.3
-      platform_profile: hal/mcu/lpc4074
-    secrets: inherit
+  # libhal-actuator-demos-lpc4074:
+  #   uses: ./.github/workflows/app_builder2.yml
+  #   with:
+  #     repo: libhal/libhal-actuator
+  #     dir: demos
+  #     compiler_profile: hal/tc/arm-gcc
+  #     platform_profile: hal/mcu/lpc4074
+  #   secrets: inherit
 
-  libhal-starter-app-lpc4078:
-    uses: ./.github/workflows/app_builder2.yml
-    with:
-      repo: libhal/libhal-starter
-      compiler_profile: hal/tc/arm-gcc-12.3
-      platform_profile: hal/mcu/lpc4078
-    secrets: inherit
+  # libhal-starter-app-lpc4078:
+  #   uses: ./.github/workflows/app_builder2.yml
+  #   with:
+  #     repo: libhal/libhal-starter
+  #     compiler_profile: hal/tc/arm-gcc
+  #     platform_profile: hal/mcu/lpc4078
+  #   secrets: inherit
 
-  libhal-starter-app-stm32f103c8:
-    uses: ./.github/workflows/app_builder2.yml
-    with:
-      repo: libhal/libhal-starter
-      compiler_profile: hal/tc/arm-gcc-12.3
-      platform_profile: hal/mcu/stm32f103c8
-    secrets: inherit
+  # libhal-starter-app-stm32f103c8:
+  #   uses: ./.github/workflows/app_builder2.yml
+  #   with:
+  #     repo: libhal/libhal-starter
+  #     compiler_profile: hal/tc/arm-gcc
+  #     platform_profile: hal/mcu/stm32f103c8
+  #   secrets: inherit
 
-  libhal-starter-app-mod-stmt32f1-v4:
-    uses: ./.github/workflows/app_builder2.yml
-    with:
-      repo: libhal/libhal-starter
-      compiler_profile: hal/tc/arm-gcc-12.3
-      platform_profile: hal/bsp/mod-stm32f1-v4
-    secrets: inherit
+  # libhal-starter-app-mod-stmt32f1-v4:
+  #   uses: ./.github/workflows/app_builder2.yml
+  #   with:
+  #     repo: libhal/libhal-starter
+  #     compiler_profile: hal/tc/arm-gcc
+  #     platform_profile: hal/bsp/mod-stm32f1-v4
+  #   secrets: inherit
