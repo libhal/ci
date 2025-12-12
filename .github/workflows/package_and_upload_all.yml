@@ -54,9 +54,12 @@ jobs:
       ci_ref: ${{ steps.extract.outputs.ci_ref }}
     steps:
       - id: extract
+        env:
+          WORKFLOW_REF: ${{ github.workflow_ref }}
         run: |
-          CI_REF="${{ github.workflow_ref }}"
-          CI_REF="${CI_REF#*@}"
+          echo "Workflow ref from env: '$WORKFLOW_REF'"
+          CI_REF="${WORKFLOW_REF#*@}"
+          echo "Extracted ref: '$CI_REF'"
           echo "ci_ref=$CI_REF" >> "$GITHUB_OUTPUT"
 
   linux_x86_64_llvm:
