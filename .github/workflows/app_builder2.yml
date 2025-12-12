@@ -25,7 +25,7 @@ on:
         default: ""
       conan_version:
         type: string
-        default: "2.16.1"
+        default: "2.23.0"
       compiler_profile:
         type: string
         required: true
@@ -59,18 +59,11 @@ jobs:
       - name: 📥 Install Conan ${{ inputs.conan_version }}
         run: pipx install conan==${{ inputs.conan_version }}
 
-      - name: 📡 Add `libhal` repo to conan remotes
-        run: conan remote add libhal
-          https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
-
-      - name: 📡 Create and setup default profile
-        run: conan profile detect --force
-
-      - name: 👁️‍🗨️ Show conan profile
-        run: conan profile show
-
       - name: Install libhal conan config
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
+
+      - name: Setup libhal
+        run: conan hal setup
 
       - name: 🏗️ Build Application for ${{ inputs.profile }}
         run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
