@@ -55,6 +55,18 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Log configuration
+echo "========================================"
+echo "Baremetal Package Build Configuration"
+echo "========================================"
+echo "DIR:              $DIR"
+echo "VERSION:          $VERSION"
+echo "COMPILER_PROFILE: $COMPILER_PROFILE"
+echo "CONAN_VERSION:    $CONAN_VERSION"
+echo "ARCH_LIST:        ${ARCH_LIST[*]}"
+echo "EXTRA_CONAN_ARGS: $EXTRA_CONAN_ARGS"
+echo "========================================"
+
 # Setup conan & libhal
 pipx install conan>=$CONAN_VERSION
 conan config install https://github.com/libhal/conan-config2.git
