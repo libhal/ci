@@ -47,6 +47,10 @@ on:
         type: string
         default: "5.x.y"
         description: "Git ref (branch, tag, or SHA) of libhal/ci to use for scripts"
+      extra_conan_arguments:
+        type: string
+        default: ""
+        description: "Extra arguments to pass to conan create commands"
 
     secrets:
       conan_remote_password:
@@ -70,6 +74,7 @@ jobs:
       version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
+      extra_conan_arguments: ${{ inputs.extra_conan_arguments }}
     secrets:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
@@ -89,6 +94,7 @@ jobs:
       version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
+      extra_conan_arguments: ${{ inputs.extra_conan_arguments }}
     secrets:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
@@ -108,6 +114,7 @@ jobs:
       version: ${{ inputs.version }}
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
+      extra_conan_arguments: ${{ inputs.extra_conan_arguments }}
     secrets:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
@@ -154,7 +161,8 @@ jobs:
             --version ${{ inputs.version }} \
             --compiler-profile hal/tc/llvm \
             --conan-version ${{ inputs.conan_version }} \
-            --arch-list cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
+            --arch-list cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
+            --extra-conan-args "${{ inputs.extra_conan_arguments }}"
 
       - name: 📦 Build packages for all Cortex-M architectures
         working-directory: target-repo
@@ -165,7 +173,8 @@ jobs:
             --version ${{ inputs.version }} \
             --compiler-profile hal/tc/llvm \
             --conan-version ${{ inputs.conan_version }} \
-            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
+            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
+            --extra-conan-args "${{ inputs.extra_conan_arguments }}"
 
       - name: 📡 Add conan user remote-package-repo
         if: ${{ inputs.remote_url != '' }}
@@ -221,7 +230,8 @@ jobs:
             --version ${{ inputs.version }} \
             --compiler-profile hal/tc/arm-gcc \
             --conan-version ${{ inputs.conan_version }} \
-            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
+            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
+            --extra-conan-args "${{ inputs.extra_conan_arguments }}"
 
       - name: 📡 Add conan user remote-package-repo
         if: ${{ inputs.remote_url != '' }}
