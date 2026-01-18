@@ -11,6 +11,7 @@
 
 # Exit script on any error
 set -e
+set -x
 
 # Default values
 DIR="."
