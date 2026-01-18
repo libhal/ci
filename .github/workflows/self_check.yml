@@ -23,6 +23,10 @@ on:
     - cron: "0 12 * * 0"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   library_check_libhal_v4:
     uses: ./.github/workflows/library_check.yml
@@ -85,6 +89,7 @@ jobs:
       library: strong_ptr
       repo: libhal/strong_ptr
       modules_support_needed: true
+      ci_ref: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
   package-libhal_v4:
@@ -93,6 +98,7 @@ jobs:
       library: libhal
       repo: libhal/libhal
       dir: v4
+      ci_ref: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
   package-libhal-util:
@@ -101,6 +107,7 @@ jobs:
       library: libhal-util
       repo: libhal/libhal-util
       dir: v5
+      ci_ref: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
   # TODO(#95): Enable Windows
