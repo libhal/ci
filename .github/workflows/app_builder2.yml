@@ -38,6 +38,10 @@ on:
       dir: # Directory where the conan package exists
         type: string
         default: "."
+      library_dir:
+        type: string
+        default: ""
+        description: "Specify the library directory to create a library package using the platform and compiler profiles. A version will not be supplied. The package should default to either 'latest' OR something that the application can understand."
 
 jobs:
   build:
@@ -64,6 +68,10 @@ jobs:
 
       - name: Setup libhal
         run: conan hal setup
+
+      - name: 📦 Create Package "${{ inputs.library_dir }}" @ version=latest
+        if: ${{ inputs.library_dir != '' }}
+        run: conan create ${{ inputs.library_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} --version=latest
 
       - name: 🏗️ Build Application for ${{ inputs.profile }}
         run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}

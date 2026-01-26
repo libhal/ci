@@ -220,6 +220,10 @@ Builds applications/demos for embedded platforms using the new conan-config2 sys
 - `platform_profile` (string, **required**): Platform profile path (e.g., "hal/mcu/lpc4078")
 - `config2_version` (string): Branch/tag of conan-config2 to use. Default: "main"
 - `dir` (string): Directory containing the application. Default: "."
+- `library_dir` (string): Directory containing the directory of a library
+  needed for the application to build. The library's version will be hard set
+  to `latest`. If this input is left empty, then the library build step is
+  skipped. Default: "".
 
 **Usage:**
 
