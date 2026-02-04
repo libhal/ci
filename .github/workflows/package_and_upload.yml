@@ -17,6 +17,9 @@ name: 📦 Conan Package & Upload
 on:
   workflow_call:
     inputs:
+      name:
+        type: string
+        default: "📦 Package & Upload"
       library:
         type: string
         default: ${{ github.event.repository.name }}
@@ -62,6 +65,7 @@ on:
         required: false
 jobs:
   package_and_upload:
+    name: ${{ inputs.name }}
     runs-on: ${{ inputs.runner_os }}
     env:
       VERBOSE: 1
