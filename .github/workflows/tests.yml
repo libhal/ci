@@ -19,25 +19,25 @@ on:
     inputs:
       library:
         type: string
-        required: true
+        default: ${{ github.event.repository.name }}
       version:
         type: string
         default: ""
       coverage:
         type: boolean
-        required: true
+        default: false
       fail_on_coverage:
         type: boolean
-        required: true
+        default: false
       coverage_threshold:
         type: string
-        required: true
+        default: "40 80"
       repo:
         type: string
         required: true
       conan_version:
         type: string
-        required: true
+        default: 2.22.2
       config2_version:
         type: string
         default: main
@@ -46,6 +46,8 @@ on:
         type: string
         default: "."
       # (DEPRECATED) Version of LLVM to install via homebrew, no longer used
+      # The llvm binary comes from the llvm-toolchain package within the llvm
+      # profile.
       llvm:
         type: string
         default: "17"
@@ -103,4 +105,4 @@ jobs:
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 🔬 Create & Run Unit Tests
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm -o "*:enable_clang_tidy=True"
