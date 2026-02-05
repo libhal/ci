@@ -17,40 +17,50 @@ name: 🧪 tests
 on:
   workflow_call:
     inputs:
-      library:
+      repo:
         type: string
-        default: ${{ github.event.repository.name }}
+        default: ${{ github.repository }}
+        description: "The repo with the conan package to build from"
       version:
         type: string
         default: ""
-      coverage:
-        type: boolean
-        default: false
-      fail_on_coverage:
-        type: boolean
-        default: false
-      coverage_threshold:
-        type: string
-        default: "40 80"
-      repo:
-        type: string
-        required: true
-      conan_version:
-        type: string
-        default: 2.22.2
-      config2_version:
-        type: string
-        default: main
-      # Directory where the conan package exists
+        description: "Version of the git repo to checkout. Must match an available git ref or tag. The tag must follow SEMVER-2."
       dir:
         type: string
         default: "."
-      # (DEPRECATED) Version of LLVM to install via homebrew, no longer used
-      # The llvm binary comes from the llvm-toolchain package within the llvm
-      # profile.
+        description: "Directory where the conan package exists"
+      conan_version:
+        type: string
+        default: 2.22.2
+        description: "Which conan version to install"
+      config2_version:
+        type: string
+        default: main
+        description: "Set the version to pull the libhal conan-config2 info. This must be a tagged version of the config-conan2 repo"
+
+      # ========================================================================
+      # Deprecated inputs
+      # ========================================================================
+      library:
+        type: string
+        default: ${{ github.event.repository.name }}
+        description: "(DEPRECATED) No longer needed or used."
       llvm:
         type: string
         default: "17"
+        description: "(DEPRECATED) Version of LLVM to install via homebrew, no longer used The llvm binary comes from the llvm-toolchain package within the llvm profile."
+      coverage:
+        type: boolean
+        default: false
+        description: "(DEPRECATED) No longer used, coverage should be handled by the package itself."
+      fail_on_coverage:
+        type: boolean
+        default: false
+        description: "(DEPRECATED) No longer used, coverage should be handled by the package itself."
+      coverage_threshold:
+        type: string
+        default: "40 80"
+        description: "(DEPRECATED) No longer used, coverage should be handled by the package itself."
 jobs:
   run_tests:
     strategy:
@@ -105,4 +115,4 @@ jobs:
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 🔬 Create & Run Unit Tests
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version='latest' -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm -o "*:enable_clang_tidy=True"
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version=latest -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm -o "*:enable_clang_tidy=True"

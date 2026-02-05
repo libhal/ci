@@ -341,6 +341,7 @@ Creates Conan packages for a specific platform/architecture and uploads to a rep
 - `conan_remote_password`: Password for Conan repository
 
 **Usage:**
+
 ```yaml
 jobs:
   deploy:
@@ -399,21 +400,23 @@ jobs:
 
 ### tests.yml
 
-Runs unit tests on multiple platforms with optional coverage reporting.
+Runs unit tests on multiple platforms.
 
 **Inputs:**
 
-- `library` (string, **required**): Library name
-- `version` (string): Version/tag to checkout. Default: ""
-- `coverage` (boolean, **required**): Enable code coverage
-- `fail_on_coverage` (boolean, **required**): Fail on coverage threshold
-- `coverage_threshold` (string, **required**): Coverage thresholds
-- `repo` (string, **required**): GitHub repository
-- `conan_version` (string, **required**): Conan version
+- `repo` (string): GitHub repository to build from. Default: current repository
+- `version` (string): Version/tag to checkout. Default: "" (uses current branch)
+- `dir` (string): Directory containing the Conan package. Default: "."
+- `conan_version` (string): Conan version. Default: "2.22.2"
 - `config2_version` (string): conan-config2 branch/tag. Default: "main"
-- `dir` (string): Package directory. Default: "."
-- `llvm` (string): **(DEPRECATED NO LONGER USED)**. Tests will use the latest
-  version of LLVM available in the libhal conan-config2 repo.
+
+**Deprecated Inputs (no longer used):**
+
+- `library` (string): No longer needed, repo name is auto-detected
+- `llvm` (string): LLVM version now comes from llvm-toolchain package in llvm profile
+- `coverage` (boolean): Coverage should be handled by the package itself
+- `fail_on_coverage` (boolean): Coverage should be handled by the package itself
+- `coverage_threshold` (string): Coverage should be handled by the package itself
 
 Runs tests on:
 
@@ -426,12 +429,17 @@ Runs tests on:
 jobs:
   tests:
     uses: libhal/ci/.github/workflows/tests.yml@5.x.y
+    secrets: inherit
+```
+
+Or with custom options:
+
+```yaml
+jobs:
+  tests:
+    uses: libhal/ci/.github/workflows/tests.yml@5.x.y
     with:
-      library: libhal-util
       repo: libhal/libhal-util
-      coverage: true
-      fail_on_coverage: false
-      coverage_threshold: "40 80"
       conan_version: "2.22.2"
     secrets: inherit
 ```
