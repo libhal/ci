@@ -28,7 +28,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      library_check: ${{ steps.filter.outputs.library_check }}
+      lint: ${{ steps.filter.outputs.lint }}
+      docs: ${{ steps.filter.outputs.docs }}
+      package_and_upload_all: ${{ steps.filter.outputs.package_and_upload_all }}
+      app_builder2: ${{ steps.filter.outputs.app_builder2 }}
+      tests: ${{ steps.filter.outputs.tests }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            library_check:
+              - '.github/workflows/library_check.yml'
+            tests:
+              - '.github/workflows/tests.yml'
+            lint:
+              - '.github/workflows/lint.yml'
+            docs:
+              - '.github/workflows/docs.yml'
+            package_and_upload_all:
+              - '.github/workflows/package_and_upload_all.yml'
+              - '.github/workflows/package_and_upload.yml'
+            app_builder2:
+              - '.github/workflows/app_builder2.yml'
+
   library_check_libhal_v4:
+    needs: changes
+    if: ${{ needs.changes.outputs.library_check == 'true' }}
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal
@@ -37,6 +68,8 @@ jobs:
     secrets: inherit
 
   library_check_libhal-util:
+    needs: changes
+    if: ${{ needs.changes.outputs.library_check == 'true' }}
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-util
@@ -45,6 +78,8 @@ jobs:
     secrets: inherit
 
   libhal-actuator:
+    needs: changes
+    if: ${{ needs.changes.outputs.library_check == 'true' }}
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-actuator
@@ -52,6 +87,8 @@ jobs:
     secrets: inherit
 
   libhal-sensor:
+    needs: changes
+    if: ${{ needs.changes.outputs.library_check == 'true' }}
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-sensor
@@ -59,6 +96,8 @@ jobs:
     secrets: inherit
 
   libhal-expander:
+    needs: changes
+    if: ${{ needs.changes.outputs.library_check == 'true' }}
     uses: ./.github/workflows/library_check.yml
     with:
       library: libhal-expander
@@ -66,6 +105,8 @@ jobs:
     secrets: inherit
 
   libhal-micromod-lint:
+    needs: changes
+    if: ${{ needs.changes.outputs.lint == 'true' }}
     uses: ./.github/workflows/lint.yml
     with:
       library: libhal-micromod
@@ -75,6 +116,8 @@ jobs:
     secrets: inherit
 
   libhal-micromod-docs:
+    needs: changes
+    if: ${{ needs.changes.outputs.docs == 'true' }}
     uses: ./.github/workflows/docs.yml
     with:
       library: libhal-micromod
@@ -83,7 +126,18 @@ jobs:
       repo: libhal/libhal-micromod
     secrets: inherit
 
+  strong_ptr-tests:
+    needs: changes
+    if: ${{ needs.changes.outputs.tests == 'true' }}
+    uses: ./.github/workflows/tests.yml
+    with:
+      library: strong_ptr
+      repo: libhal/strong_ptr
+    secrets: inherit
+
   package-strong_ptr:
+    needs: changes
+    if: ${{ needs.changes.outputs.package_and_upload_all == 'true' }}
     uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: strong_ptr
@@ -93,6 +147,8 @@ jobs:
     secrets: inherit
 
   package-libhal_v4:
+    needs: changes
+    if: ${{ needs.changes.outputs.package_and_upload_all == 'true' }}
     uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal
@@ -102,6 +158,8 @@ jobs:
     secrets: inherit
 
   package-libhal-util:
+    needs: changes
+    if: ${{ needs.changes.outputs.package_and_upload_all == 'true' }}
     uses: ./.github/workflows/package_and_upload_all.yml
     with:
       library: libhal-util
@@ -116,6 +174,8 @@ jobs:
   # TODO(libhal/libhal-util#87): Add libhal-util v6
 
   libhal-arm-mcu-lpc4078-demos:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-arm-mcu
@@ -125,6 +185,8 @@ jobs:
     secrets: inherit
 
   libhal-expander-build-latest:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-expander
@@ -134,6 +196,8 @@ jobs:
       platform_profile: hal/mcu/lpc4078
 
   libhal-actuator-demos-lpc4078:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-actuator
@@ -143,6 +207,8 @@ jobs:
     secrets: inherit
 
   libhal-actuator-demos-lpc4074:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-actuator
@@ -152,6 +218,8 @@ jobs:
     secrets: inherit
 
   libhal-starter-app-lpc4078:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-starter
@@ -160,6 +228,8 @@ jobs:
     secrets: inherit
 
   libhal-starter-app-stm32f103c8:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-starter
@@ -168,6 +238,8 @@ jobs:
     secrets: inherit
 
   libhal-starter-app-mod-stmt32f1-v4:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
     uses: ./.github/workflows/app_builder2.yml
     with:
       repo: libhal/libhal-starter
