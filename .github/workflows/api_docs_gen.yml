@@ -16,6 +16,10 @@ name: 📚 Generate APIs Docs
 
 on:
   workflow_call:
+    inputs:
+      dir:
+        type: string
+        default: .
 
 jobs:
   generate_api_docs:
@@ -28,10 +32,10 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install -y doxygen
       - run: pipx install conan>=2.20.0
-      - run: pip install -r docs/requirements.txt gitpython requests
+      - run: pip install -r ${{ inputs.dir }}/docs/requirements.txt gitpython requests
       - run: conan config install https://github.com/libhal/conan-config2.git
-      - run: conan hal docs --doc_version ${{ github.ref_name }}
+      - run: conan hal docs --doc_version ${{ github.ref_name }} ${{ inputs.dir }}/docs
       - run: wget https://raw.githubusercontent.com/libhal/ci/5.x.y/.github/scripts/api_deploy.py
-      - run: python api_deploy.py deploy --version ${{ github.ref_name }} --repo-name ${{ github.event.repository.name }}
+      - run: python api_deploy.py deploy --version ${{ github.ref_name }} --repo-name ${{ github.event.repository.name }} --docs-dir ${{ inputs.dir }}/docs/build/
         env:
           GITHUB_TOKEN: ${{ secrets.API_PUSH_TOKEN }}
