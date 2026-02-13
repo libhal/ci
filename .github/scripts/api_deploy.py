@@ -148,8 +148,10 @@ def check_existing_pr(token: str,
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
     }
+    owner = repo.split("/")[0]
+    qualified_head = head if ":" in head else f"{owner}:{head}"
     params = {
-        "head": head,
+        "head": qualified_head,
         "base": base,
         "state": "open"
     }
