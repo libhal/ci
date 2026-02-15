@@ -192,7 +192,7 @@ def create_pr_or_update_branch_on_api_repo(
 
     # Generate a branch name if not provided
     if not branch_name:
-        branch_name = f"{repo_name}-{version}"
+        branch_name = f"{repo_name}"
 
     # Create PR using GitHub API (requires GitHub token)
     github_token = os.environ.get('GITHUB_TOKEN')

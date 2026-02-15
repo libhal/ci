@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       library_check: ${{ steps.filter.outputs.library_check }}
+      api_docs: ${{ steps.filter.outputs.api_docs }}
       lint: ${{ steps.filter.outputs.lint }}
       docs: ${{ steps.filter.outputs.docs }}
       package_and_upload_all: ${{ steps.filter.outputs.package_and_upload_all }}
@@ -43,6 +44,8 @@ jobs:
         id: filter
         with:
           filters: |
+            api_docs:
+              - '.github/workflows/api_docs_gen.yml'
             library_check:
               - '.github/workflows/library_check.yml'
             tests:
@@ -56,6 +59,30 @@ jobs:
               - '.github/workflows/package_and_upload.yml'
             app_builder2:
               - '.github/workflows/app_builder2.yml'
+
+  api_strong_ptr:
+    needs: changes
+    if: ${{ needs.changes.outputs.api_docs == 'true' }}
+    uses: ./.github/workflows/api_docs_gen.yml
+    with:
+      repo_name: strong_ptr
+      repo: libhal/strong_ptr
+      dir: .
+      dry_run: true
+      version: main
+    secrets: inherit
+
+  api_libhal_v4:
+    needs: changes
+    if: ${{ needs.changes.outputs.api_docs == 'true' }}
+    uses: ./.github/workflows/api_docs_gen.yml
+    with:
+      repo_name: libhal
+      repo: libhal/libhal
+      dir: v4
+      dry_run: true
+      version: main
+    secrets: inherit
 
   library_check_libhal_v4:
     needs: changes
