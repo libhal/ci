@@ -71,7 +71,7 @@ jobs:
       dir: .
       dry_run: true
       version: main
-      api_deploy_version: ${{ github.ref }}
+      api_deploy_version: ${{ github.head_ref }}
     secrets: inherit
 
   api_libhal_v4:
@@ -84,7 +84,7 @@ jobs:
       dir: v4
       dry_run: true
       version: main
-      api_deploy_version: ${{ github.ref_name }}
+      api_deploy_version: ${{ github.head_ref }}
     secrets: inherit
 
   library_check_libhal_v4:
