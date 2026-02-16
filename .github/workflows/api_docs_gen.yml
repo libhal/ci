@@ -32,6 +32,9 @@ on:
       dry_run:
         type: boolean
         default: false
+      api_deploy_version:
+        type: string
+        default: 5.x.y
 
 jobs:
   generate_api_docs:
@@ -51,7 +54,9 @@ jobs:
       - run: pip install -r ${{ inputs.dir }}/docs/requirements.txt gitpython requests
       - run: conan config install https://github.com/libhal/conan-config2.git
       - run: conan hal docs --doc_version ${{ inputs.version }} ${{ inputs.dir }}/docs
-      - run: wget https://raw.githubusercontent.com/libhal/ci/5.x.y/.github/scripts/api_deploy.py
+      - name: print api docs version name
+        run: echo ${{ inputs.api_deploy_version }}
+      - run: wget https://raw.githubusercontent.com/libhal/ci/${{ inputs.api_deploy_version }}/.github/scripts/api_deploy.py
       - name: Deploy to API repo
         if: ${{ inputs.dry_run == false }}
         run: python api_deploy.py deploy --version ${{ inputs.version }} --repo-name ${{ inputs.repo_name }} --docs-dir ${{ inputs.dir }}/docs/build/

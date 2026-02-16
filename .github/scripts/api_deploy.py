@@ -212,6 +212,13 @@ def create_pr_or_update_branch_on_api_repo(
             print(f"Switching to branch: {branch_name}")
             api_repo.git.checkout('-B', branch_name)
 
+            # Pull remote branch contents if it exists so we commit on top
+            try:
+                api_repo.git.pull('origin', branch_name)
+                print(f"Pulled latest from origin/{branch_name}")
+            except GitCommandError:
+                print(f"No existing remote branch '{branch_name}' to pull.")
+
             # Create repo directory if it doesn't exist
             repo_dir = os.path.join(temp_dir, repo_name)
             os.makedirs(repo_dir, exist_ok=True)
@@ -250,11 +257,8 @@ def create_pr_or_update_branch_on_api_repo(
                 print("Adding remote 'origin' with access token")
                 origin = api_repo.create_remote("origin", auth_url)
 
-            # Force Push because we allow APIs for a specific version to
-            # reflect the latest representation of the version/ref.
             print(f"Pushing branch to remote...")
-            api_repo.git.push('--force', '--set-upstream',
-                              'origin', branch_name)
+            api_repo.git.push('--set-upstream', 'origin', branch_name)
 
             # Check if PR already exists
             existing_pr = check_existing_pr(
