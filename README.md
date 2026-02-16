@@ -196,7 +196,11 @@ Generates and deploys API documentation for libhal libraries.
 
 **Inputs:**
 
-- None (uses repository name and version from GitHub context)
+- `dir` (string): Directory containing the documentation. Default: "."
+- `version` (string): Version/tag to checkout. Default: current branch name
+- `repo` (string): GitHub repository to build from. Default: current repository
+- `repo_name` (string): Repository name. Default: repository name from GitHub context
+- `dry_run` (boolean): Enable dry run mode. Default: false
 
 **Usage:**
 
