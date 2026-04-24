@@ -85,7 +85,7 @@ jobs:
     with:
       name: 🐉 LLVM 🐧 Linux ARM64
       # Target specific
-      runner_os: ubuntu-24.04
+      runner_os: ubuntu-24.04-arm
       arch: armv8
       os: Linux
       compiler_profile: hal/tc/llvm
