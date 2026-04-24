@@ -94,26 +94,26 @@ jobs:
       - name: 📡 Create and setup default profile
         run: conan profile detect --force
 
-      - name: 📡 Add conan libhal remote
-        run: conan remote add libhal https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
-
       - name: 📡 Add conan user remote-package-repo
         if: ${{ inputs.remote_url != '' }}
         run: conan remote add --force remote-package-repo ${{ inputs.remote_url }}
         # We use --force to allow the remote-package-repo to also be the libhal
         # repo.
 
-      - name: 📡 Install libhal settings_user.yml
+      - name: 📡 Install libhal conan configs v2
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
+      - name: 📡 Perform conan hal setup
+        run: conan hal setup
+
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
+        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=MinSizeRel -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
+        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=MinSizeRel -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} -s:h build_type=Release  -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
+        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Release  -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📡 Sign into Conan Package Repository
         if: ${{ inputs.version != 'latest' && inputs.remote_url != '' && env.CONAN_REMOTE_USER != '' && env.CONAN_REMOTE_PASSWORD != '' }}
