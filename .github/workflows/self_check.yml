@@ -244,6 +244,18 @@ jobs:
       platform_profile: hal/mcu/lpc4074
     secrets: inherit
 
+  libhal-actuator-demos-lpc4074_extra_args:
+    needs: changes
+    if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
+    uses: ./.github/workflows/app_builder2.yml
+    with:
+      repo: libhal/libhal-actuator
+      dir: demos
+      compiler_profile: hal/tc/arm-gcc
+      platform_profile: hal/mcu/lpc4074
+      extra_conan_arguments: -b missing
+    secrets: inherit
+
   libhal-starter-app-lpc4078:
     needs: changes
     if: ${{ needs.changes.outputs.app_builder2 == 'true' }}
