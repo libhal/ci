@@ -42,6 +42,10 @@ on:
         type: string
         default: ""
         description: "Specify the library directory to create a library package using the platform and compiler profiles. A version will not be supplied. The package should default to either 'latest' OR something that the application can understand."
+      extra_conan_arguments:
+        type: string
+        default: ""
+        description: "Extra arguments to pass to conan create commands"
 
 jobs:
   build:
@@ -71,7 +75,7 @@ jobs:
 
       - name: 📦 Create Package "${{ inputs.library_dir }}" @ version=latest
         if: ${{ inputs.library_dir != '' }}
-        run: conan create ${{ inputs.library_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} --version=latest
+        run: conan create ${{ inputs.library_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} ${{ inputs.extra_conan_arguments }} --version=latest
 
       - name: 🏗️ Build Application for ${{ inputs.profile }}
-        run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }}
+        run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} ${{ inputs.extra_conan_arguments }}
