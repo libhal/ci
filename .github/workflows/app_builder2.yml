@@ -75,7 +75,7 @@ jobs:
 
       - name: 📦 Create Package "${{ inputs.library_dir }}" @ version=latest
         if: ${{ inputs.library_dir != '' }}
-        run: conan create ${{ inputs.library_dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} ${{ inputs.extra_conan_arguments }} --version=latest
+        run: conan create ${{ inputs.library_dir }} -pr:a ${{ inputs.compiler_profile }} -pr:h ${{ inputs.platform_profile }} ${{ inputs.extra_conan_arguments }} --version=latest
 
       - name: 🏗️ Build Application for ${{ inputs.profile }}
-        run: conan build ${{ inputs.dir }} -pr ${{ inputs.compiler_profile }} -pr ${{ inputs.platform_profile }} ${{ inputs.extra_conan_arguments }}
+        run: conan build ${{ inputs.dir }} -pr:a ${{ inputs.compiler_profile }} -pr:h ${{ inputs.platform_profile }} ${{ inputs.extra_conan_arguments }}
