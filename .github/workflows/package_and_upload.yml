@@ -107,13 +107,13 @@ jobs:
         run: conan hal setup
 
       - name: 📦 Create `Debug` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Debug -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
+        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Debug -pr:a ${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=MinSizeRel -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
+        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=MinSizeRel -pr:a ${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📦 Create `Release` package for ${{ inputs.profile }}
-        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Release  -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} -pr:h ${{ inputs.compiler_profile }} --build=missing ${{ inputs.extra_conan_arguments }}
+        run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Release  -pr:a ${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📡 Sign into Conan Package Repository
         if: ${{ inputs.version != 'latest' && inputs.remote_url != '' && env.CONAN_REMOTE_USER != '' && env.CONAN_REMOTE_PASSWORD != '' }}

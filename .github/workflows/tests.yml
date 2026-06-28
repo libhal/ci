@@ -115,4 +115,4 @@ jobs:
         run: conan config install https://github.com/libhal/conan-config2.git --args="-b ${{ inputs.config2_version }}"
 
       - name: 🔬 Create & Run Unit Tests
-        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version=latest -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -pr:h hal/tc/llvm -o "*:enable_clang_tidy=True"
+        run: conan create ${{ inputs.dir }} -s:h build_type=Debug --version=latest -pr:a hal/tc/llvm -s:h os=${{ matrix.os }} -s:h arch=${{ matrix.arch }} --build=missing -o "*:enable_clang_tidy=True"
