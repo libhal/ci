@@ -332,7 +332,7 @@ Creates Conan packages for a specific platform/architecture and uploads to a rep
 - `conan_version` (string): Conan version. Default: "2.18.0"
 - `config2_version` (string): conan-config2 branch/tag. Default: "main"
 - `version` (string): Package version. Default: "latest" (no upload)
-- `runner_os` (string, **required**): GitHub runner OS (e.g., "ubuntu-24.04", "macos-latest")
+- `runner_os` (string, **required**): GitHub runner OS (e.g., "ubuntu-24.04", "macos-15")
 - `arch` (string, **required**): Target architecture (e.g., "x86_64", "cortex-m4f")
 - `os` (string, **required**): Target OS (e.g., "Linux", "baremetal")
 - `compiler_profile` (string, **required**): Compiler profile path
