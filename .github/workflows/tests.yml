@@ -70,7 +70,7 @@ jobs:
           - runner_os: ubuntu-24.04
             arch: x86_64
             os: Linux
-          - runner_os: macos-latest
+          - runner_os: macos-15
             arch: armv8
             os: Macos
           # # ==================================================================

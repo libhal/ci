@@ -101,12 +101,12 @@ jobs:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
-  mac_os_x_latest_llvm:
+  mac_os_x_15_llvm:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       name: 🐉 LLVM 🍎 Mac ARM64
       # Target specific
-      runner_os: macos-latest
+      runner_os: macos-15
       arch: armv8
       os: Macos
       compiler_profile: hal/tc/llvm
