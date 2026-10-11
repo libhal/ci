@@ -51,6 +51,10 @@ on:
         type: string
         default: ""
         description: "Extra arguments to pass to conan create commands"
+      llvm_profile:
+        type: string
+        default: hal/tc/llvm
+        description: "Compiler profile for the LLVM builds, e.g. hal/tc/llvm-23"
 
     secrets:
       conan_remote_password:
@@ -67,7 +71,7 @@ jobs:
       runner_os: ubuntu-24.04
       arch: x86_64
       os: Linux
-      compiler_profile: hal/tc/llvm
+      compiler_profile: ${{ inputs.llvm_profile }}
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -88,7 +92,7 @@ jobs:
       runner_os: ubuntu-24.04-arm
       arch: armv8
       os: Linux
-      compiler_profile: hal/tc/llvm
+      compiler_profile: ${{ inputs.llvm_profile }}
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -109,7 +113,7 @@ jobs:
       runner_os: macos-15
       arch: armv8
       os: Macos
-      compiler_profile: hal/tc/llvm
+      compiler_profile: ${{ inputs.llvm_profile }}
       # Plumbing
       library: ${{ inputs.library }}
       repo: ${{ inputs.repo }}
@@ -163,7 +167,7 @@ jobs:
           bash ../ci-repo/.github/scripts/baremetal_package.sh \
             --dir ${{ inputs.dir }} \
             --version ${{ inputs.version }} \
-            --compiler-profile hal/tc/llvm \
+            --compiler-profile ${{ inputs.llvm_profile }} \
             --conan-version ${{ inputs.conan_version }} \
             --arch-list cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
             --extra-conan-args "${{ inputs.extra_conan_arguments }}"
@@ -175,7 +179,7 @@ jobs:
           bash ../ci-repo/.github/scripts/baremetal_package.sh \
             --dir ${{ inputs.dir }} \
             --version ${{ inputs.version }} \
-            --compiler-profile hal/tc/llvm \
+            --compiler-profile ${{ inputs.llvm_profile }} \
             --conan-version ${{ inputs.conan_version }} \
             --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
             --extra-conan-args "${{ inputs.extra_conan_arguments }}"
