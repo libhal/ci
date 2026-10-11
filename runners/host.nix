@@ -17,7 +17,12 @@ in
     authorizedKeys = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
-      description = "SSH public keys allowed to log in as root on every runner.";
+      description = "SSH public keys allowed to log in as the unprivileged ci user on every runner.";
+    };
+    rootAuthorizedKeys = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "SSH public keys allowed to log in as root on every runner. Break-glass only; leave empty to disable root login.";
     };
     runners = lib.mkOption {
       default = { };
@@ -26,6 +31,19 @@ in
           options.mac = lib.mkOption { type = lib.types.str; };
         }
       );
+    };
+
+    forgejoRunnerTokenFile = lib.mkOption {
+      # str, not path, so a runtime location like /run/secrets/... is never
+      # copied into the nix store
+      type = lib.types.str;
+      example = "/run/secrets/forgejo-runner-env";
+      description = ''
+        Absolute path, on the host and at runtime, to an environment file
+        containing `TOKEN=<registration token>`. It is handed to every runner
+        VM as a systemd credential and never written to the nix store or the
+        VM's disks. It must be readable by the user running the VMs' QEMU.
+      '';
     };
   };
 
@@ -85,7 +103,10 @@ in
       config = {
         imports = [ self.nixosModules.runner ];
         networking.hostName = name;
-        users.users.root.openssh.authorizedKeys.keys = cfg.authorizedKeys;
+        users.users.ci.openssh.authorizedKeys.keys = cfg.authorizedKeys;
+        users.users.root.openssh.authorizedKeys.keys = cfg.rootAuthorizedKeys;
+        # read by forgejo.nix from /run/credentials/@system/forgejo-token
+        microvm.credentialFiles.forgejo-token = cfg.forgejoRunnerTokenFile;
         microvm.interfaces = [
           {
             type = "tap";

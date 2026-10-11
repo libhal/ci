@@ -1,15 +1,28 @@
 { pkgs, ... }:
 {
-  imports = [ ./dagger.nix ];
+  imports = [
+    ./dagger.nix
+    ./forgejo.nix
+  ];
 
   # networking.hostName and microvm.interfaces are set per runner by host.nix
-  users.users.root.password = "A"; # console only; TODO: replace before exposing the VPS
+  # Unprivileged login; authorized keys are set per runner by host.nix. It has
+  # no password, so it cannot escalate; root key login is the escape hatch.
+  users.users.ci = {
+    isNormalUser = true;
+    extraGroups = [
+      "wheel"
+      "docker"
+    ];
+  };
 
   services.openssh = {
     enable = true;
     settings = {
+      # key-only; keys are only installed if rootAuthorizedKeys is set
       PermitRootLogin = "prohibit-password";
       PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
     };
   };
 
