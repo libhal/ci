@@ -105,12 +105,14 @@ jobs:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
-  mac_os_x_15_llvm:
+  mac_os_x_llvm:
     uses: ./.github/workflows/package_and_upload.yml
     with:
       name: 🐉 LLVM 🍎 Mac ARM64
       # Target specific
-      runner_os: macos-15
+      # macOS 26: on 14/15 the LLVM 22+ toolchain bundles its own libc++,
+      # which conflicts with the ASan runtime's system libc++.
+      runner_os: macos-26
       arch: armv8
       os: Macos
       compiler_profile: ${{ inputs.llvm_profile }}
