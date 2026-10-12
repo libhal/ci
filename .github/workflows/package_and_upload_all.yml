@@ -129,8 +129,19 @@ jobs:
   # ================ ARM CORTEX LLVM ================
 
   cortex-m_llvm:
-    name: 🐉 LLVM Arm Cortex M
+    name: 🐉 LLVM Arm Cortex ${{ matrix.group }}
     runs-on: ubuntu-latest
+    # Two parallel jobs: building every Cortex-M architecture in one job is
+    # slow. ARMv6-M (M0, M0+, M1) is left out when coroutine support is
+    # needed.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: M0-M7
+            arch_list: ${{ inputs.coroutine_support_needed && 'cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d' || 'cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d' }}
+          - group: M23-M85
+            arch_list: cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
     env:
       VERBOSE: 1
       CONAN_REMOTE_USER: ${{ secrets.conan_remote_user }}
@@ -160,28 +171,15 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: ci-repo
 
-      - name: 📦 Build packages for all Cortex-M architectures
+      - name: 📦 Build packages for Cortex ${{ matrix.group }}
         working-directory: target-repo
-        if: ${{ inputs.coroutine_support_needed == true }}
         run: |
           bash ../ci-repo/.github/scripts/baremetal_package.sh \
             --dir ${{ inputs.dir }} \
             --version ${{ inputs.version }} \
             --compiler-profile ${{ inputs.llvm_profile }} \
             --conan-version ${{ inputs.conan_version }} \
-            --arch-list cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
-            --extra-conan-args "${{ inputs.extra_conan_arguments }}"
-
-      - name: 📦 Build packages for all Cortex-M architectures
-        working-directory: target-repo
-        if: ${{ inputs.coroutine_support_needed == false }}
-        run: |
-          bash ../ci-repo/.github/scripts/baremetal_package.sh \
-            --dir ${{ inputs.dir }} \
-            --version ${{ inputs.version }} \
-            --compiler-profile ${{ inputs.llvm_profile }} \
-            --conan-version ${{ inputs.conan_version }} \
-            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
+            --arch-list ${{ matrix.arch_list }} \
             --extra-conan-args "${{ inputs.extra_conan_arguments }}"
 
       - name: 📡 Add conan user remote-package-repo
