@@ -82,6 +82,7 @@ jobs:
           #   os: Windows
 
     runs-on: ${{ matrix.runner_os }}
+    timeout-minutes: 30
     env:
       VERBOSE: 1
     steps:

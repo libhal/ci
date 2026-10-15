@@ -56,6 +56,7 @@ jobs:
             package_and_upload_all:
               - '.github/workflows/package_and_upload_all.yml'
               - '.github/workflows/package_and_upload.yml'
+              - '.github/scripts/baremetal_package.sh'
             app_builder2:
               - '.github/workflows/app_builder2.yml'
 

@@ -57,6 +57,14 @@ on:
         type: string
         default: ""
         description: "Extra arguments to pass to conan create commands"
+      build_types:
+        type: string
+        default: "Debug,MinSizeRel,Release"
+        description: "Comma separated list of build types to create packages for"
+      timeout_minutes:
+        type: number
+        default: 30
+        description: "Cancel the job if it runs longer than this"
 
     secrets:
       conan_remote_user:
@@ -67,6 +75,7 @@ jobs:
   package_and_upload:
     name: ${{ inputs.name }}
     runs-on: ${{ inputs.runner_os }}
+    timeout-minutes: ${{ inputs.timeout_minutes }}
     env:
       VERBOSE: 1
       CONAN_REMOTE_USER: ${{ secrets.conan_remote_user }}
@@ -106,13 +115,16 @@ jobs:
       - name: 📡 Perform conan hal setup
         run: conan hal setup
 
-      - name: 📦 Create `Debug` package for ${{ inputs.profile }}
+      - name: 📦 Create `Debug` package for ${{ inputs.compiler_profile }}
+        if: ${{ contains(format(',{0},', inputs.build_types), ',Debug,') }}
         run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Debug -pr:a ${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} --build=missing ${{ inputs.extra_conan_arguments }}
 
-      - name: 📦 Create `MinSizeRel` package for ${{ inputs.profile }}
+      - name: 📦 Create `MinSizeRel` package for ${{ inputs.compiler_profile }}
+        if: ${{ contains(format(',{0},', inputs.build_types), ',MinSizeRel,') }}
         run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=MinSizeRel -pr:a ${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} --build=missing ${{ inputs.extra_conan_arguments }}
 
-      - name: 📦 Create `Release` package for ${{ inputs.profile }}
+      - name: 📦 Create `Release` package for ${{ inputs.compiler_profile }}
+        if: ${{ contains(format(',{0},', inputs.build_types), ',Release,') }}
         run: conan create ${{ inputs.dir }} --build="${{ inputs.library }}/*" -s:h build_type=Release  -pr:a ${{ inputs.compiler_profile }} -s:h os=${{ inputs.os }} -s:h arch=${{ inputs.arch }} --version=${{ inputs.version }} --build=missing ${{ inputs.extra_conan_arguments }}
 
       - name: 📡 Sign into Conan Package Repository
