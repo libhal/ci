@@ -1,0 +1,130 @@
+# Copyright 2026 Khalil Estell and the libhal contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 🏷️ Semantic Release
+
+# Releases each version line of a repository from its own directory.
+#
+# A repository can hold several major versions side by side, each in its own
+# directory (e.g. v4/ and v5/). Each line is released independently by
+# .github/scripts/semantic_release.py:
+#
+#   - It only sees its own tags (<major>.*), and only counts commits that
+#     change its directory since its last release. A commit that changes
+#     several directories counts for each of their lines.
+#   - A commit subject asks for a release with (minor) or (patch). The
+#     highest keyword since the last release wins, so several (patch) commits
+#     make one patch release. Commit bodies are ignored, so a squash merge's
+#     list of commits or a description of these rules doesn't count.
+#   - (major) fails the run. Major versions are started by hand: publish the
+#     line's first tag yourself and add the line to `lines`.
+#   - A line whose only tags are <major>.0.0-alpha.K makes pre-releases:
+#     either keyword cuts <major>.0.0-alpha.K+1. Publishing <major>.0.0 by
+#     hand switches the line to normal releases.
+#
+# Usage, from a workflow that runs on pushes to main:
+#
+#   concurrency:
+#     group: semantic-release
+#     cancel-in-progress: false
+#   jobs:
+#     release:
+#       uses: libhal/ci/.github/workflows/semantic_release.yml@5.x.y
+#       with:
+#         lines: '[{"major": 4, "dir": "v4"}, {"major": 5, "dir": "v5"}]'
+#       secrets:
+#         release_token: ${{ secrets.SEMANTIC_RELEASE }}
+#
+# The concurrency group keeps two pushes from computing the same version. The
+# release token must be a personal access token: a release created with the
+# workflow's own GITHUB_TOKEN doesn't trigger the repository's deploy workflow.
+
+on:
+  workflow_call:
+    inputs:
+      lines:
+        type: string
+        required: true
+        description: >-
+          JSON list of version lines, each {"major": <number>, "dir": <path>}.
+          A single-directory repository uses one line with "dir": ".".
+      dry_run:
+        type: boolean
+        default: false
+        description: Print the releases that would be created, but don't create them.
+      ci_ref:
+        type: string
+        default: "5.x.y"
+        description: Git ref (branch, tag, or SHA) of libhal/ci to use for scripts
+    secrets:
+      release_token:
+        required: false
+        description: >-
+          Personal access token used to create the releases. Required unless
+          dry_run is true.
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: 🏷️ Release ${{ matrix.major }}.x
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(inputs.lines) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: target-repo
+
+      - name: 📥 Checkout CI repository for scripts
+        uses: actions/checkout@v4
+        with:
+          repository: libhal/ci
+          ref: ${{ inputs.ci_ref }}
+          path: ci-repo
+
+      - name: 🔢 Next ${{ matrix.major }}.x version
+        id: next
+        working-directory: target-repo
+        run: |
+          python3 ../ci-repo/.github/scripts/semantic_release.py \
+            --major "${{ matrix.major }}" \
+            --dir "${{ matrix.dir }}" \
+            --output "$GITHUB_OUTPUT"
+
+      - name: 🏷️ Release ${{ steps.next.outputs.tag }}
+        if: steps.next.outputs.tag != ''
+        working-directory: target-repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.release_token }}
+          TAG: ${{ steps.next.outputs.tag }}
+          PREVIOUS: ${{ steps.next.outputs.previous }}
+          PRERELEASE: ${{ steps.next.outputs.prerelease }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          command=(gh release create "$TAG" --target "$GITHUB_SHA"
+                   --notes-start-tag "$PREVIOUS" --generate-notes)
+          if [ "$PRERELEASE" = "true" ]; then
+            command+=(--prerelease)
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: ${command[*]}"
+          else
+            "${command[@]}"
+          fi

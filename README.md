@@ -44,7 +44,12 @@ The repository contains the following callable workflows:
    platforms and architectures that libhal supports. Replaces the deprecated
    `deploy_all.yml` workflow.
 
-8. `tests.yml`: Runs unit tests for a library on multiple platforms (Linux,
+8. `semantic_release.yml`: Creates releases from `(minor)` and `(patch)`
+   keywords in commit subjects. Releases each major version directory (e.g.
+   `v4/` and `v5/`) of a repository independently, including
+   `<major>.0.0-alpha.N` pre-releases.
+
+9. `tests.yml`: Runs unit tests for a library on multiple platforms (Linux,
    macOS, and optionally Windows) with optional code coverage reporting.
 
 ### Internal Workflows
@@ -400,6 +405,84 @@ jobs:
     secrets:
       conan_remote_user: ${{ secrets.CONAN_USER }}
       conan_remote_password: ${{ secrets.CONAN_PASSWORD }}
+```
+
+### semantic_release.yml
+
+Creates GitHub releases from keywords in commit subjects. A repository can
+hold several major versions side by side, each in its own directory (a
+"version line", e.g. `v4/` and `v5/`), and each line is released
+independently. The version logic is in
+[`.github/scripts/semantic_release.py`](.github/scripts/semantic_release.py).
+
+**Rules:**
+
+- A line only sees its own tags (`<major>.*`) and only counts commits that
+  change its directory since its last release. A commit that changes several
+  directories counts for each of their lines.
+- `(minor)` or `(patch)` in a commit **subject** asks for a release. Commit
+  bodies are ignored, so a squash merge's list of commits doesn't count.
+- The highest keyword since the last release wins: `(minor)` makes
+  `<major>.X+1.0`, `(patch)` makes `<major>.X.Y+1`. Several `(patch)` commits
+  make one patch release.
+- `(major)` fails the run. Major versions are started by hand: publish the
+  line's first tag (`<major>.0.0-alpha.1` or `<major>.0.0`) yourself and add
+  the line to `lines`.
+- A line whose only tags are `<major>.0.0-alpha.K` makes pre-releases: either
+  keyword cuts `<major>.0.0-alpha.K+1`. Publishing `<major>.0.0` by hand
+  switches the line to normal releases.
+- Releases are computed from the last tag, not from the commits in one push,
+  so a skipped or failed run is picked up by the next push.
+
+**Inputs:**
+
+- `lines` (string, **required**): JSON list of version lines, each
+  `{"major": <number>, "dir": <path>}`. A single-directory repository uses one
+  line with `"dir": "."`.
+- `dry_run` (boolean): Print the releases that would be created instead of
+  creating them. Default: `false`
+- `ci_ref` (string): Git ref of libhal/ci to take the script from. Default:
+  "5.x.y"
+
+**Secrets:**
+
+- `release_token`: Personal access token used to create the releases.
+  Required unless `dry_run` is true. A release created with the workflow's own
+  `GITHUB_TOKEN` doesn't trigger the repository's deploy workflow.
+
+**Usage:**
+
+```yaml
+name: 🏷️ Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+
+# Keeps two pushes from computing the same version
+concurrency:
+  group: semantic-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    uses: libhal/ci/.github/workflows/semantic_release.yml@5.x.y
+    with:
+      lines: '[{"major": 4, "dir": "v4"}, {"major": 5, "dir": "v5"}]'
+    secrets:
+      release_token: ${{ secrets.SEMANTIC_RELEASE }}
+```
+
+**Testing the script locally:**
+
+```bash
+# Unit tests (build throwaway git repositories, no network)
+python3 -m unittest discover -s .github/scripts -p "test_*.py"
+
+# What would be released for a line of a local clone
+cd path/to/libhal
+python3 path/to/ci/.github/scripts/semantic_release.py --major 4 --dir v4
 ```
 
 ### tests.yml
