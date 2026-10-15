@@ -184,6 +184,21 @@ jobs:
       ci_ref: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
+  # LLVM 23: the Mac job runs on macOS 26 (LLVM 20 runs on macOS 15).
+  package-libhal_v5:
+    needs: changes
+    if: ${{ needs.changes.outputs.package_and_upload_all == 'true' }}
+    uses: ./.github/workflows/package_and_upload_all.yml
+    with:
+      library: libhal
+      repo: libhal/libhal
+      dir: v5
+      modules_support_needed: true
+      llvm_profile: hal/tc/llvm-23
+      conan_version: 2.33.0
+      ci_ref: ${{ github.head_ref || github.ref_name }}
+    secrets: inherit
+
   package-libhal-util:
     needs: changes
     if: ${{ needs.changes.outputs.package_and_upload_all == 'true' }}

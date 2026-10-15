@@ -110,9 +110,9 @@ jobs:
     with:
       name: 🐉 LLVM 🍎 Mac ARM64
       # Target specific
-      # macOS 26: on 14/15 the LLVM 22+ toolchain bundles its own libc++,
-      # which conflicts with the ASan runtime's system libc++.
-      runner_os: macos-26
+      # LLVM 20's ASan runtime deadlocks before main() on macOS 26+, so LLVM 20
+      # (hal/tc/llvm is LLVM 20) runs on macOS 15. Newer LLVM runs on macOS 26.
+      runner_os: ${{ contains(fromJSON('["hal/tc/llvm", "hal/tc/llvm-20"]'), inputs.llvm_profile) && 'macos-15' || 'macos-26' }}
       arch: armv8
       os: Macos
       compiler_profile: ${{ inputs.llvm_profile }}
