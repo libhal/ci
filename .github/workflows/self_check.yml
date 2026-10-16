@@ -36,6 +36,7 @@ jobs:
       package_and_upload_all: ${{ steps.filter.outputs.package_and_upload_all }}
       app_builder2: ${{ steps.filter.outputs.app_builder2 }}
       tests: ${{ steps.filter.outputs.tests }}
+      semantic_release: ${{ steps.filter.outputs.semantic_release }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -58,6 +59,31 @@ jobs:
               - '.github/workflows/package_and_upload.yml'
             app_builder2:
               - '.github/workflows/app_builder2.yml'
+            semantic_release:
+              - '.github/workflows/semantic_release.yml'
+              - '.github/scripts/semantic_release.py'
+              - '.github/scripts/test_semantic_release.py'
+
+  semantic_release_tests:
+    name: 🧪 semantic_release.py tests
+    needs: changes
+    if: ${{ needs.changes.outputs.semantic_release == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -v -s .github/scripts -p "test_semantic_release.py"
+
+  # Line 5 uses this repository's 5.x.y tags; line 99 has no tags, so it isn't
+  # started. Dry run: nothing is created.
+  semantic_release:
+    needs: changes
+    if: ${{ needs.changes.outputs.semantic_release == 'true' }}
+    uses: ./.github/workflows/semantic_release.yml
+    with:
+      lines: '[{"major": 5, "dir": "."}, {"major": 99, "dir": "."}]'
+      dry_run: true
+      ci_ref: ${{ github.head_ref || github.ref_name }}
 
   api_strong_ptr:
     needs: changes
