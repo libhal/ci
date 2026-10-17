@@ -58,6 +58,8 @@ These workflows are used internally by the libhal/ci repository and are not
 typically called directly by other repositories:
 
 - `rebase.yml`: Automatically rebases the 5.x.y branch onto main
+- `semantic-release.yml`: Releases this repository from `(minor)` and `(patch)`
+  in commit subjects, using its own `semantic_release.yml`
 - `self_check.yml`: Runs checks on various libhal libraries to ensure workflows
   are functioning correctly
 - `take.yml`: Allows contributors to self-assign issues by commenting `.take`
