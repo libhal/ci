@@ -14,7 +14,12 @@
 
 name: 📦 Conan Package & Upload (all)
 
-# Builds packages for every device and architecture libhal supports
+# Builds packages for the devices and architectures libhal supports. It runs
+# in one of two modes:
+#
+#   check  (`version` is "latest", nothing is uploaded): `MinSizeRel` only and
+#          a sample of Cortex-M architectures.
+#   deploy (`version` is set): every build type and architecture.
 
 on:
   workflow_call:
@@ -63,7 +68,58 @@ on:
         required: false
 
 jobs:
+  # Decides what the jobs below build. Check runs (version "latest", nothing
+  # is uploaded) build less than deploys, which build everything they upload.
+  plan:
+    name: 📋 Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      build_types: ${{ steps.plan.outputs.build_types }}
+      cortex_m_llvm: ${{ steps.plan.outputs.cortex_m_llvm }}
+      cortex_m_gcc: ${{ steps.plan.outputs.cortex_m_gcc }}
+    steps:
+      - name: 📋 Choose build types and architectures
+        id: plan
+        env:
+          VERSION: ${{ inputs.version }}
+          COROUTINES: ${{ inputs.coroutine_support_needed }}
+        run: |
+          # ARMv6-M (M0, M0+, M1) is left out of the LLVM builds when
+          # coroutine support is needed.
+          if [ "$COROUTINES" = "true" ]; then
+            armv6m=""
+          else
+            armv6m="cortex-m0,cortex-m0plus,cortex-m1,"
+          fi
+
+          if [ "$VERSION" = "latest" ]; then
+            # Check run: one build type and a sample of Cortex-M cores
+            build_types="MinSizeRel"
+            sample="cortex-m3,cortex-m4f,cortex-m33f"
+            llvm_sample="${armv6m:+cortex-m0plus,}$sample"
+            cortex_m_llvm=$(jq -nc --arg archs "$llvm_sample" \
+              '[{name: "M sample", archs: $archs}]')
+            cortex_m_gcc="cortex-m0plus,$sample"
+          else
+            # Deploy: every build type and Cortex-M core. LLVM splits the
+            # cores across two jobs because one job for all of them is slow.
+            build_types="Debug,MinSizeRel,Release"
+            older="cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d"
+            newer="cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85"
+            cortex_m_llvm=$(jq -nc --arg older "$armv6m$older" --arg newer "$newer" \
+              '[{name: "M0-M7", archs: $older}, {name: "M23-M85", archs: $newer}]')
+            cortex_m_gcc="cortex-m0,cortex-m0plus,cortex-m1,$older,$newer"
+          fi
+
+          {
+            echo "build_types=$build_types"
+            echo "cortex_m_llvm=$cortex_m_llvm"
+            echo "cortex_m_gcc=$cortex_m_gcc"
+          } | tee -a "$GITHUB_OUTPUT"
+
   linux_x86_64_llvm:
+    needs: plan
     uses: ./.github/workflows/package_and_upload.yml
     with:
       name: 🐉 LLVM 🐧 Linux x86_64
@@ -80,11 +136,13 @@ jobs:
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
       extra_conan_arguments: ${{ inputs.extra_conan_arguments }}
+      build_types: ${{ needs.plan.outputs.build_types }}
     secrets:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
   linux_armv8_llvm:
+    needs: plan
     uses: ./.github/workflows/package_and_upload.yml
     with:
       name: 🐉 LLVM 🐧 Linux ARM64
@@ -101,11 +159,13 @@ jobs:
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
       extra_conan_arguments: ${{ inputs.extra_conan_arguments }}
+      build_types: ${{ needs.plan.outputs.build_types }}
     secrets:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
 
   mac_os_x_llvm:
+    needs: plan
     uses: ./.github/workflows/package_and_upload.yml
     with:
       name: 🐉 LLVM 🍎 Mac ARM64
@@ -124,6 +184,7 @@ jobs:
       dir: ${{ inputs.dir }}
       remote_url: ${{ inputs.remote_url }}
       extra_conan_arguments: ${{ inputs.extra_conan_arguments }}
+      build_types: ${{ needs.plan.outputs.build_types }}
     secrets:
       conan_remote_user: ${{ secrets.conan_remote_user }}
       conan_remote_password: ${{ secrets.conan_remote_password }}
@@ -131,19 +192,15 @@ jobs:
   # ================ ARM CORTEX LLVM ================
 
   cortex-m_llvm:
-    name: 🐉 LLVM Arm Cortex ${{ matrix.group }}
+    name: 🐉 LLVM Arm Cortex ${{ matrix.name }}
+    needs: plan
     runs-on: ubuntu-latest
-    # Two parallel jobs: building every Cortex-M architecture in one job is
-    # slow. ARMv6-M (M0, M0+, M1) is left out when coroutine support is
-    # needed.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - group: M0-M7
-            arch_list: ${{ inputs.coroutine_support_needed && 'cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d' || 'cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d' }}
-          - group: M23-M85
-            arch_list: cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85
+        # One entry per job: {name, archs}. See the plan job.
+        include: ${{ fromJSON(needs.plan.outputs.cortex_m_llvm) }}
     env:
       VERBOSE: 1
       CONAN_REMOTE_USER: ${{ secrets.conan_remote_user }}
@@ -173,7 +230,7 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: ci-repo
 
-      - name: 📦 Build packages for Cortex ${{ matrix.group }}
+      - name: 📦 Build packages for Cortex ${{ matrix.name }}
         working-directory: target-repo
         run: |
           bash ../ci-repo/.github/scripts/baremetal_package.sh \
@@ -181,7 +238,8 @@ jobs:
             --version ${{ inputs.version }} \
             --compiler-profile ${{ inputs.llvm_profile }} \
             --conan-version ${{ inputs.conan_version }} \
-            --arch-list ${{ matrix.arch_list }} \
+            --arch-list ${{ matrix.archs }} \
+            --build-types ${{ needs.plan.outputs.build_types }} \
             --extra-conan-args "${{ inputs.extra_conan_arguments }}"
 
       - name: 📡 Add conan user remote-package-repo
@@ -200,7 +258,9 @@ jobs:
 
   cortex-m_gcc:
     name: 🦌 GCC Arm Cortex M
+    needs: plan
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     if: ${{ inputs.modules_support_needed == false }}
     env:
       VERBOSE: 1
@@ -231,7 +291,7 @@ jobs:
           ref: ${{ inputs.ci_ref }}
           path: ci-repo
 
-      - name: 📦 Build packages for all Cortex-M architectures
+      - name: 📦 Build packages for Cortex-M architectures
         working-directory: target-repo
         run: |
           bash ../ci-repo/.github/scripts/baremetal_package.sh \
@@ -239,7 +299,8 @@ jobs:
             --version ${{ inputs.version }} \
             --compiler-profile hal/tc/gcc \
             --conan-version ${{ inputs.conan_version }} \
-            --arch-list cortex-m0,cortex-m0plus,cortex-m1,cortex-m3,cortex-m4,cortex-m4f,cortex-m7f,cortex-m7d,cortex-m23,cortex-m33,cortex-m33f,cortex-m35pf,cortex-m55,cortex-m85 \
+            --arch-list ${{ needs.plan.outputs.cortex_m_gcc }} \
+            --build-types ${{ needs.plan.outputs.build_types }} \
             --extra-conan-args "${{ inputs.extra_conan_arguments }}"
 
       - name: 📡 Add conan user remote-package-repo

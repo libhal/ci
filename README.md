@@ -343,6 +343,12 @@ Creates Conan packages for a specific platform/architecture and uploads to a rep
 - `compiler_profile` (string, **required**): Compiler profile path
 - `dir` (string): Conan package directory. Default: "."
 - `remote_url` (string): Conan repository URL. Default: ""
+- `extra_conan_arguments` (string): Extra arguments for `conan create`.
+  Default: ""
+- `build_types` (string): Comma separated build types to create. Default:
+  "Debug,MinSizeRel,Release"
+- `timeout_minutes` (number): Cancel the job if it runs longer than this.
+  Default: 30
 
 **Secrets:**
 
@@ -369,7 +375,7 @@ jobs:
 
 ### package_and_upload_all.yml
 
-Creates Conan packages for all supported platforms and architectures.
+Creates Conan packages for the platforms and architectures libhal supports.
 
 **Inputs:**
 
@@ -379,19 +385,38 @@ Creates Conan packages for all supported platforms and architectures.
 - `conan_version` (string): Conan version. Default: "2.22.2"
 - `dir` (string): Conan package directory. Default: "."
 - `remote_url` (string): Conan repository URL. Default: ""
+- `modules_support_needed` (boolean): The package uses C++20 modules, so the
+  GCC Cortex-M job is skipped. Default: `false`
+- `coroutine_support_needed` (boolean): The package uses coroutines, so
+  ARMv6-M (Cortex-M0, M0+, M1) is skipped. Default: `false`
+- `llvm_profile` (string): Compiler profile for the LLVM builds, e.g.
+  "hal/tc/llvm-23". Default: "hal/tc/llvm"
+- `extra_conan_arguments` (string): Extra arguments for `conan create`.
+  Default: ""
+- `ci_ref` (string): Git ref of libhal/ci to take scripts from. Default:
+  "5.x.y"
 
 **Secrets:**
 
 - `conan_remote_user`: Username for Conan repository
 - `conan_remote_password`: Password for Conan repository
 
-Builds packages for:
+It runs in one of two modes, picked by `version`:
 
-- Linux x86_64 (LLVM)
-- Linux armv8 (LLVM)
-- macOS armv8 (LLVM)
-- Cortex-M0+, M1, M3, M4, M4F, M7F, M7D (ARM GCC)
-- Cortex-M23, M33, M33F, M35PF, M55, M85 (ARM GCC)
+| | Check (`version: latest`, nothing uploaded) | Deploy (`version` set) |
+| --- | --- | --- |
+| Build types | `MinSizeRel` | `Debug`, `MinSizeRel`, `Release` |
+| Linux x86_64, Linux armv8, macOS armv8 (LLVM) | ✅ | ✅ |
+| Cortex-M (LLVM) | M0+, M3, M4F, M33F in one job | M0, M0+, M1, M3, M4, M4F, M7F, M7D and M23, M33, M33F, M35PF, M55, M85 in two jobs |
+| Cortex-M (GCC, when `modules_support_needed` is false) | M0+, M3, M4F, M33F | every Cortex-M architecture |
+
+Check mode keeps pull requests and pushes to main cheap. Deploys still build
+everything they upload. A first "📋 Plan" job makes these choices in one
+place and the build jobs read its outputs. ARMv6-M (M0, M0+, M1) is left out of both when
+`coroutine_support_needed` is true.
+
+Host jobs time out after 30 minutes and Cortex-M jobs after 45, so a hung
+runner can't run for hours.
 
 **Usage:**
 
@@ -508,7 +533,9 @@ Runs unit tests on multiple platforms.
 Runs tests on:
 
 - Ubuntu 24.04 (x86_64, Linux)
-- macOS latest (armv8, macOS)
+- macOS 15 (armv8, macOS)
+
+Each job times out after 30 minutes.
 
 **Usage:**
 
