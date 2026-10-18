@@ -82,11 +82,16 @@ pipx install conan>=$CONAN_VERSION
 conan config install https://github.com/libhal/conan-config2.git
 conan hal setup
 
-# Loop over architectures and build types
+# Loop over architectures and build types. Only the first package runs the
+# test_package: it rebuilds every imported C++ module just to link one small
+# program, which roughly doubles the cost of each package, and linking against
+# the other architectures adds little.
+TEST_FOLDER_ARGS=()
 for ARCH in "${ARCH_LIST[@]}"; do
   echo "Building for architecture: $ARCH"
 
   for BUILD_TYPE in "${BUILD_TYPES[@]}"; do
-    conan create $DIR -s:h build_type=$BUILD_TYPE -s:h os=baremetal -s:h arch=$ARCH --version $VERSION -pr:h $COMPILER_PROFILE --build=missing $EXTRA_CONAN_ARGS
+    conan create $DIR -s:h build_type=$BUILD_TYPE -s:h os=baremetal -s:h arch=$ARCH --version $VERSION -pr:h $COMPILER_PROFILE --build=missing "${TEST_FOLDER_ARGS[@]}" $EXTRA_CONAN_ARGS
+    TEST_FOLDER_ARGS=(--test-folder "")
   done
 done

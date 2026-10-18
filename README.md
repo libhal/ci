@@ -409,7 +409,7 @@ It runs in one of two modes, picked by `version`:
 | --- | --- | --- |
 | Build types | `MinSizeRel` | `Debug`, `MinSizeRel`, `Release` |
 | Linux x86_64, Linux armv8, macOS armv8 (LLVM) | ✅ | ✅ |
-| Cortex-M (LLVM) | M0+, M3, M4F, M33F in one job | M0, M0+, M1, M3, M4, M4F, M7F, M7D and M23, M33, M33F, M35PF, M55, M85 in two jobs |
+| Cortex-M (LLVM) | M0+, M3, M4F, M33F in one job | M0, M0+, M1, M3, M4, M4F, M7F, M7D, M23, M33, M33F, M35PF, M55, M85, split evenly across three jobs |
 | Cortex-M (GCC, when `modules_support_needed` is false) | M0+, M3, M4F, M33F | every Cortex-M architecture |
 
 Check mode keeps pull requests and pushes to main cheap. Deploys still build
@@ -419,6 +419,11 @@ place and the build jobs read its outputs. ARMv6-M (M0, M0+, M1) is left out of 
 
 Host jobs time out after 30 minutes and Cortex-M jobs after 45, so a hung
 runner can't run for hours.
+
+Within each Cortex-M job, only the first package runs its `test_package`. A
+test_package rebuilds every imported C++ module (mp-units, libhal, ...) just to
+link one program, so running it for every architecture and build type roughly
+doubled the job's time.
 
 **Usage:**
 
