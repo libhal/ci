@@ -208,16 +208,18 @@ def create_pr_or_update_branch_on_api_repo(
             print(f"Cloning {api_repo_url} into temporary directory...")
             api_repo = Repo.clone_from(api_repo_url, temp_dir)
 
-            # Checkout existing branch or create a new branch
-            print(f"Switching to branch: {branch_name}")
-            api_repo.git.checkout('-B', branch_name)
-
-            # Pull remote branch contents if it exists so we commit on top
-            try:
-                api_repo.git.pull('origin', branch_name)
-                print(f"Pulled latest from origin/{branch_name}")
-            except GitCommandError:
-                print(f"No existing remote branch '{branch_name}' to pull.")
+            # Continue the branch if it already exists, so the push is a fast
+            # forward. Starting it from main and pulling the remote branch in
+            # fails once main has commits the branch lacks, such as another
+            # repository's merged docs.
+            remote_branch = f"origin/{branch_name}"
+            remote_branches = [ref.name for ref in api_repo.remotes.origin.refs]
+            if remote_branch in remote_branches:
+                print(f"Switching to branch: {branch_name} ({remote_branch})")
+                api_repo.git.checkout('-B', branch_name, remote_branch)
+            else:
+                print(f"Switching to new branch: {branch_name} (from main)")
+                api_repo.git.checkout('-B', branch_name)
 
             # Create repo directory if it doesn't exist
             repo_dir = os.path.join(temp_dir, repo_name)
