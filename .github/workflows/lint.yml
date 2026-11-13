@@ -87,3 +87,14 @@ jobs:
           clang-format-version: "18"
           check-path: ${{ inputs.dir }}/tests
           exclude-regex: ".*/third_party/.*"
+
+      # The hook comes from this workflow's own commit of libhal/ci, so a change
+      # to the hook and a change to this workflow are tested together.
+      - name: 🔁 Check for infinite loops that Clang deletes
+        if: always()
+        shell: bash
+        run: |
+          git ls-files -z -- "${{ inputs.dir }}" |
+            xargs -0 -r pipx run pre-commit try-repo https://github.com/libhal/ci \
+              no-continue-infinite-loop \
+              --ref "${{ job.workflow_sha || '5.x.y' }}" --files

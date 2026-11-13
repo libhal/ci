@@ -34,7 +34,8 @@ The repository contains the following callable workflows:
 
 5. `lint.yml`: Checks code formatting using clang-format. Validates that code
    follows the libhal style guide for `include/`, `src/`, `demos/`, and
-   `tests/` directories.
+   `tests/` directories. Also runs the `no-continue-infinite-loop` hook (see
+   [pre-commit hooks](#pre-commit-hooks)) on every file under `dir`.
 
 6. `package_and_upload.yml`: Creates Conan packages for a specific platform and
    optionally uploads them to a Conan repository. Replaces the deprecated
@@ -564,6 +565,25 @@ jobs:
       conan_version: "2.22.2"
     secrets: inherit
 ```
+
+## pre-commit hooks
+
+`.pre-commit-hooks.yaml` defines hooks that any repository can run with
+[pre-commit](https://pre-commit.com):
+
+```yaml
+repos:
+  - repo: https://github.com/libhal/ci
+    rev: 5.9.0 # a release tag of this repository
+    hooks:
+      - id: no-continue-infinite-loop
+```
+
+- `no-continue-infinite-loop`: rejects an infinite loop whose body is only
+  `continue;`, such as `while (true) { continue; }`. The compiler may assume
+  that a loop without side effects ends, so Clang deletes it, and execution
+  falls into whatever code follows. Leave the body empty, with a comment inside
+  saying why (libhal style guide, S.3.7). `lint.yml` runs this hook too.
 
 ## Deprecated Workflows
 
