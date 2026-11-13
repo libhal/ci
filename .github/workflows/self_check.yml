@@ -37,6 +37,7 @@ jobs:
       app_builder2: ${{ steps.filter.outputs.app_builder2 }}
       tests: ${{ steps.filter.outputs.tests }}
       semantic_release: ${{ steps.filter.outputs.semantic_release }}
+      infinite_loop_hook: ${{ steps.filter.outputs.infinite_loop_hook }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -52,6 +53,7 @@ jobs:
               - '.github/workflows/tests.yml'
             lint:
               - '.github/workflows/lint.yml'
+              - '.pre-commit-hooks.yaml'
             docs:
               - '.github/workflows/docs.yml'
             package_and_upload_all:
@@ -64,6 +66,19 @@ jobs:
               - '.github/workflows/semantic_release.yml'
               - '.github/scripts/semantic_release.py'
               - '.github/scripts/test_semantic_release.py'
+            infinite_loop_hook:
+              - '.pre-commit-hooks.yaml'
+              - '.github/scripts/test_infinite_loop_hook.py'
+
+  infinite_loop_hook_tests:
+    name: 🧪 no-continue-infinite-loop hook tests
+    needs: changes
+    if: ${{ needs.changes.outputs.infinite_loop_hook == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -v -s .github/scripts -p "test_infinite_loop_hook.py"
 
   semantic_release_tests:
     name: 🧪 semantic_release.py tests
